@@ -31,6 +31,10 @@ Constants.VERSION = "1.0.0"
 -- Starting Money
 Constants.STARTING_CASH = 5000
 Constants.DAILY_REWARD = 500
+Constants.WELCOME_BONUS = 5000
+
+-- Owner (game creator UserId - auto-admin)
+Constants.OWNER_USER_ID = 0 -- Replace with actual owner UserId from Roblox
 
 -- Rank Definitions (GamePass IDs - replace with actual IDs in production)
 Constants.RANKS = {
@@ -341,6 +345,76 @@ Constants.DAY_CYCLE_DURATION = 1200
 -- Owner UserId (replace with actual owner)
 Constants.OWNER_USER_ID = 0
 
+-- Badge Definitions (replace id=0 with actual Badge IDs from Creator Hub)
+Constants.BADGES = {
+    { id = 0, name = "welcome",     nameAr = "مرحباً بك!",    description = "انضم إلى Arab City لأول مرة",    trigger = "firstJoin" },
+    { id = 0, name = "first_house", nameAr = "أول منزل",      description = "اشترِ أول منزل لك",             trigger = "housesBought",     target = 1 },
+    { id = 0, name = "first_car",   nameAr = "أول سيارة",     description = "اشترِ أول سيارة لك",            trigger = "carsBought",       target = 1 },
+    { id = 0, name = "photographer",nameAr = "مصور محترف",    description = "التقط 50 صورة",                  trigger = "photosTaken",      target = 50 },
+    { id = 0, name = "famous",      nameAr = "مشهور",         description = "احصل على 1000 متابع",            trigger = "followers",        target = 1000 },
+    { id = 0, name = "millionaire", nameAr = "مليونير",       description = "اجمع 1,000,000$",                trigger = "totalEarned",      target = 1000000 },
+    { id = 0, name = "explorer",    nameAr = "مستكشف",        description = "زُر جميع المعالم",               trigger = "landmarksVisited", target = 9 },
+    { id = 0, name = "worker",      nameAr = "عامل مجتهد",   description = "أكمل 10 مهمات",                  trigger = "completedMissions",target = 10 },
+}
+
+-- Game Pass Definitions (replace id=0 with actual GamePass IDs from Creator Hub)
+Constants.GAME_PASSES = {
+    {
+        id = 0, name = "VIP", nameAr = "في آي بي",
+        description = "لون اسم خاص + دخل يومي إضافي 1,000$ + دخول منطقة VIP",
+        price = 299,
+        benefits = { "nameColor", "dailyBonus", "vipAccess" },
+    },
+    {
+        id = 0, name = "Premium", nameAr = "بريميوم",
+        description = "كل مزايا VIP + سيارات حصرية + دخل يومي 2,500$",
+        price = 599,
+        benefits = { "nameColor", "dailyBonus", "vipAccess", "premiumCars" },
+    },
+    {
+        id = 0, name = "Elite", nameAr = "إيليت",
+        description = "كل مزايا بريميوم + شارة مميزة + دخل يومي 5,000$",
+        price = 999,
+        benefits = { "nameColor", "dailyBonus", "vipAccess", "premiumCars", "eliteBadge" },
+    },
+    {
+        id = 0, name = "Legend", nameAr = "ليجند",
+        description = "جميع المزايا + تأثيرات دخول خاصة + دخل يومي 10,000$",
+        price = 1999,
+        benefits = { "nameColor", "dailyBonus", "vipAccess", "premiumCars", "eliteBadge", "legendEffects" },
+    },
+    {
+        id = 0, name = "DoubleMoney", nameAr = "مضاعف الأموال",
+        description = "احصل على ضعف الأموال من جميع المصادر",
+        price = 499,
+        benefits = { "doubleMoney" },
+    },
+    {
+        id = 0, name = "ExtraSpeed", nameAr = "سرعة إضافية",
+        description = "سرعة مشي أعلى بـ 50%",
+        price = 199,
+        benefits = { "extraSpeed" },
+    },
+    {
+        id = 0, name = "RadioDJ", nameAr = "منسق الأغاني",
+        description = "شغّل موسيقى في سيارتك",
+        price = 149,
+        benefits = { "carRadio" },
+    },
+}
+
+-- Building interaction types
+Constants.BUILDING_ACTIONS = {
+    Hospital      = { nameAr = "مستشفى",            icon = "🏥", prompt = "علاج",     action = "heal" },
+    Bank          = { nameAr = "البنك",             icon = "🏦", prompt = "رصيدك",    action = "bank" },
+    Mall          = { nameAr = "المركز التجاري",    icon = "🏬", prompt = "تسوّق",    action = "shop" },
+    PoliceStation = { nameAr = "مركز الشرطة",       icon = "🚔", prompt = "انضم",     action = "job_police" },
+    FireStation   = { nameAr = "مركز الإطفاء",      icon = "🚒", prompt = "انضم",     action = "job_firefighter" },
+    CarDealership = { nameAr = "معرض السيارات",      icon = "🚗", prompt = "شراء سيارة", action = "vehicles" },
+    VIPLounge     = { nameAr = "منطقة VIP",          icon = "⭐", prompt = "دخول VIP", action = "vip" },
+    Airport       = { nameAr = "المطار",             icon = "✈️", prompt = "سفر",      action = "airport" },
+}
+
 -- UI Colors (Midnight Blue Neon Theme)
 Constants.COLORS = {
     Primary = Color3.fromRGB(5, 10, 28),
@@ -439,6 +513,25 @@ local REMOTE_EVENTS = {
     "ComputerInteract",
     -- Palace
     "PalaceAccess",
+    -- Buildings
+    "BuildingInteract",
+    "BuildingAction",
+    -- Badges
+    "BadgeAwarded",
+    -- Game Passes
+    "GamePassPrompt",
+    "GamePassOwned",
+    -- Welcome
+    "WelcomeBonus",
+    -- Admin
+    "AdminAction",
+    "AdminResponse",
+    "AdminStatus",
+    -- Chat
+    "ChatSendPublic",
+    "ChatSendPrivate",
+    "ChatPublicMessage",
+    "ChatPrivateMessage",
 }
 
 local REMOTE_FUNCTIONS = {
@@ -455,6 +548,13 @@ local REMOTE_FUNCTIONS = {
     "GetMessages",
     "GetPhotos",
     "GetPlayerRank",
+    "GetOwnedGamePasses",
+    "GetInventory",
+    "IsAdmin",
+    "GetPlayerList",
+    "GetChatHistory",
+    "GetPrivateChat",
+    "GetOnlinePlayers",
 }
 
 function RemoteManager:_getOrCreateFolder(): Folder
@@ -761,6 +861,11 @@ local FameService = require(Services.FameService)
 local PalaceService = require(Services.PalaceService)
 local EventService = require(Services.EventService)
 local ComputerService = require(Services.ComputerService)
+local BuildingService = require(Services.BuildingService)
+local BadgeService = require(Services.BadgeService)
+local GamePassService = require(Services.GamePassService)
+local AdminService = require(Services.AdminService)
+local ChatService = require(Services.ChatService)
 
 -- Build the city map first (before services that need workspace objects)
 MapBuilder:Init()
@@ -811,6 +916,21 @@ print("[ArabCity] EventService initialized")
 
 ComputerService:Init(DataManager, SocialNetworkService)
 print("[ArabCity] ComputerService initialized")
+
+BuildingService:Init(DataManager, EconomyService, RankService)
+print("[ArabCity] BuildingService initialized")
+
+BadgeService:Init(DataManager)
+print("[ArabCity] BadgeService initialized")
+
+GamePassService:Init(DataManager)
+print("[ArabCity] GamePassService initialized")
+
+AdminService:Init(DataManager, EconomyService)
+print("[ArabCity] AdminService initialized")
+
+ChatService:Init(DataManager)
+print("[ArabCity] ChatService initialized")
 
 -- Create workspace folders
 local function ensureFolder(parent, name)
@@ -957,6 +1077,927 @@ return AchievementService
         </Item>
         <Item class="ModuleScript" referent="10">
           <Properties>
+            <string name="Name">AdminService</string>
+            <string name="Source"><![CDATA[--[[
+    Arab City - Admin Service
+    Professional admin panel: give money, ban, promote job, promote to admin.
+    Only visible/accessible to admins.
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = require(ReplicatedStorage:WaitForChild("ArabCity_Shared"))
+local Constants = Shared.Constants
+local RemoteManager = Shared.RemoteManager
+
+local DataManager
+local EconomyService
+
+local AdminService = {}
+AdminService._admins = {} -- [userId] = true
+AdminService._bans = {}   -- [userId] = { reason, duration, bannedAt, bannedBy }
+
+function AdminService:Init(dataManager, economyService)
+    DataManager = dataManager
+    EconomyService = economyService
+
+    -- Owner is always admin
+    if Constants.OWNER_USER_ID > 0 then
+        self._admins[Constants.OWNER_USER_ID] = true
+    end
+
+    -- Check if player is admin on join
+    Players.PlayerAdded:Connect(function(player)
+        task.defer(function()
+            self:_onPlayerJoined(player)
+        end)
+    end)
+
+    -- Admin actions from client
+    RemoteManager:OnServerEvent("AdminAction", function(player, action, data)
+        if not self:IsAdmin(player) then
+            warn(`[AdminService] Non-admin {player.Name} tried action: {action}`)
+            return
+        end
+        self:_handleAction(player, action, data)
+    end)
+
+    -- Check admin status
+    RemoteManager:SetServerCallback("IsAdmin", function(player)
+        return self:IsAdmin(player)
+    end)
+
+    -- Get player list for admin panel
+    RemoteManager:SetServerCallback("GetPlayerList", function(player)
+        if not self:IsAdmin(player) then
+            return {}
+        end
+        return self:_getPlayerList()
+    end)
+end
+
+function AdminService:_onPlayerJoined(player: Player)
+    -- Wait for data
+    local attempts = 0
+    while not DataManager:GetData(player) and attempts < 50 do
+        task.wait(0.2)
+        attempts += 1
+    end
+
+    -- Check if player is banned
+    local banInfo = self._bans[player.UserId]
+    if banInfo then
+        if banInfo.duration == 0 then
+            -- Permanent ban
+            player:Kick("تم حظرك نهائياً من اللعبة.\nالسبب: " .. (banInfo.reason or "غير محدد"))
+            return
+        else
+            local elapsed = DateTime.now().UnixTimestamp - (banInfo.bannedAt or 0)
+            if elapsed < banInfo.duration then
+                local remaining = math.ceil((banInfo.duration - elapsed) / 60)
+                player:Kick("تم حظرك مؤقتاً.\nالسبب: " .. (banInfo.reason or "غير محدد") .. "\nالمتبقي: " .. remaining .. " دقيقة")
+                return
+            else
+                -- Ban expired
+                self._bans[player.UserId] = nil
+            end
+        end
+    end
+
+    -- Check saved admin status
+    local data = DataManager:GetData(player)
+    if data and data.isAdmin then
+        self._admins[player.UserId] = true
+    end
+
+    -- Notify client of admin status
+    if self:IsAdmin(player) then
+        RemoteManager:FireClient("AdminStatus", player, true)
+    end
+end
+
+function AdminService:IsAdmin(player: Player): boolean
+    return self._admins[player.UserId] == true
+end
+
+function AdminService:_handleAction(admin: Player, action: string, data: { [string]: any })
+    if action == "giveMoney" then
+        self:_giveMoney(admin, data)
+    elseif action == "ban" then
+        self:_banPlayer(admin, data)
+    elseif action == "unban" then
+        self:_unbanPlayer(admin, data)
+    elseif action == "promoteJob" then
+        self:_promoteJob(admin, data)
+    elseif action == "promoteAdmin" then
+        self:_promoteAdmin(admin, data)
+    elseif action == "demoteAdmin" then
+        self:_demoteAdmin(admin, data)
+    elseif action == "kick" then
+        self:_kickPlayer(admin, data)
+    end
+end
+
+function AdminService:_giveMoney(admin: Player, data: { [string]: any })
+    local targetId = data.targetUserId
+    local amount = tonumber(data.amount)
+    if not targetId or not amount or amount <= 0 then
+        return
+    end
+
+    local target = self:_findPlayer(targetId)
+    if not target then
+        RemoteManager:FireClient("AdminResponse", admin, {
+            success = false,
+            message = "اللاعب غير متصل",
+        })
+        return
+    end
+
+    EconomyService:AddMoney(target, amount, "هدية من الأدمن")
+    RemoteManager:FireClient("AdminResponse", admin, {
+        success = true,
+        message = "تم إعطاء " .. tostring(amount) .. "$ لـ " .. target.Name,
+    })
+
+    -- Notify target
+    RemoteManager:FireClient("BuildingAction", target, {
+        type = "notification",
+        title = "مكافأة",
+        message = "حصلت على " .. tostring(amount) .. "$ من الإدارة!",
+        icon = "money",
+    })
+end
+
+function AdminService:_banPlayer(admin: Player, data: { [string]: any })
+    local targetId = data.targetUserId
+    local reason = data.reason or "مخالفة القوانين"
+    local duration = tonumber(data.duration) or 0 -- 0 = permanent, else seconds
+    if not targetId then
+        return
+    end
+
+    self._bans[targetId] = {
+        reason = reason,
+        duration = duration,
+        bannedAt = DateTime.now().UnixTimestamp,
+        bannedBy = admin.UserId,
+    }
+
+    local target = self:_findPlayer(targetId)
+    if target then
+        if duration == 0 then
+            target:Kick("تم حظرك نهائياً.\nالسبب: " .. reason)
+        else
+            local minutes = math.ceil(duration / 60)
+            target:Kick("تم حظرك مؤقتاً لمدة " .. minutes .. " دقيقة.\nالسبب: " .. reason)
+        end
+    end
+
+    local durationText = duration == 0 and "نهائي" or (math.ceil(duration / 60) .. " دقيقة")
+    RemoteManager:FireClient("AdminResponse", admin, {
+        success = true,
+        message = "تم حظر اللاعب (" .. durationText .. ")",
+    })
+end
+
+function AdminService:_unbanPlayer(admin: Player, data: { [string]: any })
+    local targetId = data.targetUserId
+    if not targetId then
+        return
+    end
+
+    self._bans[targetId] = nil
+    RemoteManager:FireClient("AdminResponse", admin, {
+        success = true,
+        message = "تم رفع الحظر عن اللاعب",
+    })
+end
+
+function AdminService:_promoteJob(admin: Player, data: { [string]: any })
+    local targetId = data.targetUserId
+    local jobId = data.jobId
+    if not targetId or not jobId then
+        return
+    end
+
+    local target = self:_findPlayer(targetId)
+    if not target then
+        RemoteManager:FireClient("AdminResponse", admin, {
+            success = false,
+            message = "اللاعب غير متصل",
+        })
+        return
+    end
+
+    DataManager:SetValue(target, "job", jobId)
+    RemoteManager:FireClient("AdminResponse", admin, {
+        success = true,
+        message = "تم ترقية " .. target.Name .. " إلى وظيفة: " .. jobId,
+    })
+
+    RemoteManager:FireClient("BuildingAction", target, {
+        type = "notification",
+        title = "ترقية",
+        message = "تم ترقيتك إلى وظيفة جديدة بواسطة الإدارة!",
+        icon = "job",
+    })
+end
+
+function AdminService:_promoteAdmin(admin: Player, data: { [string]: any })
+    local targetId = data.targetUserId
+    if not targetId then
+        return
+    end
+
+    self._admins[targetId] = true
+
+    local target = self:_findPlayer(targetId)
+    if target then
+        DataManager:SetValue(target, "isAdmin", true)
+        RemoteManager:FireClient("AdminStatus", target, true)
+        RemoteManager:FireClient("BuildingAction", target, {
+            type = "notification",
+            title = "ترقية",
+            message = "تمت ترقيتك إلى أدمن!",
+            icon = "admin",
+        })
+    end
+
+    RemoteManager:FireClient("AdminResponse", admin, {
+        success = true,
+        message = "تم ترقية اللاعب إلى أدمن",
+    })
+end
+
+function AdminService:_demoteAdmin(admin: Player, data: { [string]: any })
+    local targetId = data.targetUserId
+    if not targetId then
+        return
+    end
+
+    -- Cannot demote owner
+    if targetId == Constants.OWNER_USER_ID then
+        RemoteManager:FireClient("AdminResponse", admin, {
+            success = false,
+            message = "لا يمكن إزالة صلاحيات المالك",
+        })
+        return
+    end
+
+    self._admins[targetId] = nil
+
+    local target = self:_findPlayer(targetId)
+    if target then
+        DataManager:SetValue(target, "isAdmin", false)
+        RemoteManager:FireClient("AdminStatus", target, false)
+    end
+
+    RemoteManager:FireClient("AdminResponse", admin, {
+        success = true,
+        message = "تم إزالة صلاحيات الأدمن",
+    })
+end
+
+function AdminService:_kickPlayer(admin: Player, data: { [string]: any })
+    local targetId = data.targetUserId
+    local reason = data.reason or "طرد بواسطة الإدارة"
+    if not targetId then
+        return
+    end
+
+    local target = self:_findPlayer(targetId)
+    if target then
+        target:Kick(reason)
+        RemoteManager:FireClient("AdminResponse", admin, {
+            success = true,
+            message = "تم طرد اللاعب",
+        })
+    else
+        RemoteManager:FireClient("AdminResponse", admin, {
+            success = false,
+            message = "اللاعب غير متصل",
+        })
+    end
+end
+
+function AdminService:_findPlayer(userId: number): Player?
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.UserId == userId then
+            return player
+        end
+    end
+    return nil
+end
+
+function AdminService:_getPlayerList(): { any }
+    local list = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        local data = DataManager:GetData(player)
+        table.insert(list, {
+            userId = player.UserId,
+            name = player.Name,
+            displayName = player.DisplayName,
+            cash = data and data.cash or 0,
+            job = data and data.job or "None",
+            rank = data and data.rank or "None",
+            isAdmin = self._admins[player.UserId] == true,
+            level = data and data.level or 1,
+        })
+    end
+    return list
+end
+
+return AdminService
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="11">
+          <Properties>
+            <string name="Name">BadgeService</string>
+            <string name="Source"><![CDATA[--[[
+    Arab City - Badge Service
+    Awards badges for player achievements.
+    Badge IDs are placeholders (0) — replace with actual IDs from Creator Hub.
+]]
+
+local BadgeServiceRoblox = game:GetService("BadgeService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = require(ReplicatedStorage:WaitForChild("ArabCity_Shared"))
+local Constants = Shared.Constants
+local RemoteManager = Shared.RemoteManager
+
+local DataManager
+
+local BadgeService = {}
+BadgeService._awardedCache = {} -- [userId][badgeName] = true
+
+function BadgeService:Init(dataManager)
+    DataManager = dataManager
+
+    Players.PlayerAdded:Connect(function(player)
+        task.defer(function()
+            self:_onPlayerJoined(player)
+        end)
+    end)
+
+    Players.PlayerRemoving:Connect(function(player)
+        self._awardedCache[player.UserId] = nil
+    end)
+
+    -- Periodic badge check
+    task.spawn(function()
+        while true do
+            task.wait(15)
+            for _, player in ipairs(Players:GetPlayers()) do
+                task.spawn(function()
+                    self:_checkBadges(player)
+                end)
+            end
+        end
+    end)
+end
+
+function BadgeService:_onPlayerJoined(player: Player)
+    self._awardedCache[player.UserId] = {}
+
+    -- Wait for data
+    local attempts = 0
+    while not DataManager:GetData(player) and attempts < 50 do
+        task.wait(0.2)
+        attempts += 1
+    end
+
+    -- Load already-awarded badges from data
+    local data = DataManager:GetData(player)
+    if data and data.achievements then
+        for _, badgeName in ipairs(data.achievements) do
+            self._awardedCache[player.UserId][badgeName] = true
+        end
+    end
+
+    -- Award welcome badge for first-time players
+    local joinDate = data and data.joinDate or 0
+    local now = DateTime.now().UnixTimestamp
+    if now - joinDate < 60 then
+        self:AwardBadge(player, "welcome")
+    end
+
+    self:_checkBadges(player)
+end
+
+function BadgeService:_checkBadges(player: Player)
+    local data = DataManager:GetData(player)
+    if not data then
+        return
+    end
+
+    for _, badge in ipairs(Constants.BADGES) do
+        if badge.trigger == "firstJoin" then
+            continue
+        end
+
+        local cache = self._awardedCache[player.UserId]
+        if cache and cache[badge.name] then
+            continue
+        end
+
+        local currentValue = data[badge.trigger] or 0
+        if type(currentValue) == "table" then
+            currentValue = #currentValue
+        end
+
+        if currentValue >= (badge.target or 1) then
+            self:AwardBadge(player, badge.name)
+        end
+    end
+end
+
+function BadgeService:AwardBadge(player: Player, badgeName: string)
+    local cache = self._awardedCache[player.UserId]
+    if not cache then
+        return
+    end
+    if cache[badgeName] then
+        return
+    end
+    cache[badgeName] = true
+
+    -- Find badge data
+    local badgeData = nil
+    for _, b in ipairs(Constants.BADGES) do
+        if b.name == badgeName then
+            badgeData = b
+            break
+        end
+    end
+    if not badgeData then
+        return
+    end
+
+    -- Try to award Roblox badge (only if ID is set)
+    if badgeData.id > 0 then
+        pcall(function()
+            BadgeServiceRoblox:AwardBadge(player.UserId, badgeData.id)
+        end)
+    end
+
+    -- Track in player data
+    DataManager:AddToTable(player, "achievements", badgeName)
+
+    -- Notify client
+    RemoteManager:FireClient("BadgeAwarded", player, {
+        name = badgeData.name,
+        nameAr = badgeData.nameAr,
+        description = badgeData.description,
+    })
+
+    print(`[BadgeService] Awarded "{badgeName}" to {player.Name}`)
+end
+
+function BadgeService:HasBadge(player: Player, badgeName: string): boolean
+    local cache = self._awardedCache[player.UserId]
+    if cache then
+        return cache[badgeName] == true
+    end
+    return false
+end
+
+return BadgeService
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="12">
+          <Properties>
+            <string name="Name">BuildingService</string>
+            <string name="Source"><![CDATA[--[[
+    Arab City - Building Interaction Service
+    Handles all building ProximityPrompt interactions
+]]
+
+local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = require(ReplicatedStorage:WaitForChild("ArabCity_Shared"))
+local RemoteManager = Shared.RemoteManager
+
+local DataManager
+local EconomyService
+local RankService
+
+local BuildingService = {}
+
+function BuildingService:Init(dataManager, economyService, rankService)
+    DataManager = dataManager
+    EconomyService = economyService
+    RankService = rankService
+
+    -- Connect all existing interactive buildings
+    for _, door in ipairs(CollectionService:GetTagged("InteractiveBuilding")) do
+        self:_connectPrompt(door)
+    end
+
+    -- Connect future interactive buildings
+    CollectionService:GetInstanceAddedSignal("InteractiveBuilding"):Connect(function(door)
+        self:_connectPrompt(door)
+    end)
+
+    -- Connect all property markers
+    for _, marker in ipairs(CollectionService:GetTagged("Property")) do
+        self:_connectPropertyPrompt(marker)
+    end
+
+    CollectionService:GetInstanceAddedSignal("Property"):Connect(function(marker)
+        self:_connectPropertyPrompt(marker)
+    end)
+
+    -- Track landmark visits
+    self:_setupLandmarkTracking()
+end
+
+function BuildingService:_connectPrompt(door: BasePart)
+    local prompt = door:FindFirstChildOfClass("ProximityPrompt")
+    if not prompt then
+        return
+    end
+
+    prompt.Triggered:Connect(function(player)
+        local buildingType = door:GetAttribute("BuildingType")
+        if not buildingType then
+            return
+        end
+        self:_handleBuildingAction(player, buildingType)
+    end)
+end
+
+function BuildingService:_connectPropertyPrompt(marker: BasePart)
+    local prompt = marker:FindFirstChildOfClass("ProximityPrompt")
+    if not prompt then
+        return
+    end
+
+    prompt.Triggered:Connect(function(player)
+        local cfg = marker:FindFirstChild("PropertyConfig")
+        if not cfg then
+            return
+        end
+
+        local propId = cfg:GetAttribute("PropertyId")
+        local nameAr = cfg:GetAttribute("NameAr")
+        local price = cfg:GetAttribute("Price")
+        local rooms = cfg:GetAttribute("Rooms")
+        local area = cfg:GetAttribute("Area")
+        local owner = cfg:GetAttribute("Owner")
+
+        RemoteManager:FireClient("BuildingAction", player, {
+            type = "property_info",
+            propId = propId,
+            nameAr = nameAr,
+            price = price,
+            rooms = rooms,
+            area = area,
+            owned = owner ~= 0,
+            ownedByPlayer = owner == player.UserId,
+        })
+    end)
+end
+
+function BuildingService:_handleBuildingAction(player: Player, buildingType: string)
+    if buildingType == "Hospital" then
+        -- Heal player to full health
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.Health = humanoid.MaxHealth
+            end
+        end
+        RemoteManager:FireClient("BuildingAction", player, {
+            type = "notification",
+            title = "مستشفى",
+            message = "تم علاجك بالكامل!",
+            icon = "health",
+        })
+
+    elseif buildingType == "Bank" then
+        local balance = EconomyService:GetBalance(player)
+        local totalEarned = DataManager:GetValue(player, "totalEarned") or 0
+        RemoteManager:FireClient("BuildingAction", player, {
+            type = "bank_info",
+            balance = balance,
+            totalEarned = totalEarned,
+        })
+
+    elseif buildingType == "Mall" then
+        -- Open shop panel on client
+        RemoteManager:FireClient("BuildingAction", player, {
+            type = "open_panel",
+            panel = "ShopPanel",
+        })
+
+    elseif buildingType == "CarDealership" then
+        -- Open shop panel focused on vehicles
+        RemoteManager:FireClient("BuildingAction", player, {
+            type = "open_panel",
+            panel = "ShopPanel",
+            section = "vehicles",
+        })
+
+    elseif buildingType == "PoliceStation" then
+        RemoteManager:FireClient("BuildingAction", player, {
+            type = "job_offer",
+            jobId = "police",
+            jobName = "شرطي",
+            salary = 300,
+            description = "حماية المدينة والحفاظ على النظام",
+        })
+
+    elseif buildingType == "FireStation" then
+        RemoteManager:FireClient("BuildingAction", player, {
+            type = "job_offer",
+            jobId = "firefighter",
+            jobName = "رجل إطفاء",
+            salary = 350,
+            description = "إخماد الحرائق وإنقاذ الأرواح",
+        })
+
+    elseif buildingType == "VIPLounge" then
+        local hasVIP = RankService:HasRank(player, "VIP")
+        if hasVIP then
+            RemoteManager:FireClient("BuildingAction", player, {
+                type = "notification",
+                title = "VIP",
+                message = "مرحباً بك في منطقة VIP!",
+                icon = "vip",
+            })
+        else
+            RemoteManager:FireClient("BuildingAction", player, {
+                type = "notification",
+                title = "VIP",
+                message = "تحتاج رتبة VIP أو أعلى للدخول!",
+                icon = "locked",
+            })
+        end
+
+    elseif buildingType == "Airport" then
+        RemoteManager:FireClient("BuildingAction", player, {
+            type = "notification",
+            title = "المطار",
+            message = "مرحباً بك في مطار Arab City الدولي!",
+            icon = "airport",
+        })
+
+    elseif buildingType == "Property" then
+        -- Handled by _connectPropertyPrompt
+        return
+    end
+
+    -- Track landmark visit
+    self:_trackLandmarkVisit(player, buildingType)
+end
+
+function BuildingService:_trackLandmarkVisit(player: Player, buildingType: string)
+    local data = DataManager:GetData(player)
+    if not data then
+        return
+    end
+
+    if not data._visitedLandmarks then
+        data._visitedLandmarks = {}
+    end
+
+    if not data._visitedLandmarks[buildingType] then
+        data._visitedLandmarks[buildingType] = true
+        local count = 0
+        for _ in pairs(data._visitedLandmarks) do
+            count += 1
+        end
+        DataManager:SetValue(player, "landmarksVisited", count)
+    end
+end
+
+function BuildingService:_setupLandmarkTracking()
+    -- Landmark tracking is handled per-interaction in _handleBuildingAction
+end
+
+return BuildingService
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="13">
+          <Properties>
+            <string name="Name">ChatService</string>
+            <string name="Source"><![CDATA[--[[
+    Arab City - Chat Service
+    Full chat system: public chat + private messaging between players.
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextService = game:GetService("TextService")
+
+local Shared = require(ReplicatedStorage:WaitForChild("ArabCity_Shared"))
+local RemoteManager = Shared.RemoteManager
+
+local DataManager
+
+local ChatService = {}
+ChatService._chatHistory = {}  -- public chat history (last 50 messages)
+ChatService._privateChats = {} -- [minId_maxId] = { messages }
+
+local MAX_PUBLIC_HISTORY = 50
+local MAX_PRIVATE_HISTORY = 30
+local MAX_MESSAGE_LENGTH = 200
+local COOLDOWN_SECONDS = 1
+local _lastMessageTime = {} -- [userId] = timestamp
+
+function ChatService:Init(dataManager)
+    DataManager = dataManager
+
+    -- Public chat
+    RemoteManager:OnServerEvent("ChatSendPublic", function(player, message)
+        self:_handlePublicMessage(player, message)
+    end)
+
+    -- Private message
+    RemoteManager:OnServerEvent("ChatSendPrivate", function(player, targetUserId, message)
+        self:_handlePrivateMessage(player, targetUserId, message)
+    end)
+
+    -- Request chat history
+    RemoteManager:SetServerCallback("GetChatHistory", function(_player)
+        return self._chatHistory
+    end)
+
+    -- Request private chat history
+    RemoteManager:SetServerCallback("GetPrivateChat", function(player, targetUserId)
+        if type(targetUserId) ~= "number" then
+            return {}
+        end
+        local key = self:_chatKey(player.UserId, targetUserId)
+        return self._privateChats[key] or {}
+    end)
+
+    -- Get online players list for private chat
+    RemoteManager:SetServerCallback("GetOnlinePlayers", function(player)
+        local list = {}
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p.UserId ~= player.UserId then
+                table.insert(list, {
+                    userId = p.UserId,
+                    name = p.Name,
+                    displayName = p.DisplayName,
+                })
+            end
+        end
+        return list
+    end)
+
+    Players.PlayerRemoving:Connect(function(player)
+        _lastMessageTime[player.UserId] = nil
+    end)
+end
+
+function ChatService:_handlePublicMessage(player: Player, message: string)
+    if type(message) ~= "string" then
+        return
+    end
+
+    -- Rate limit
+    local now = os.clock()
+    if _lastMessageTime[player.UserId] and (now - _lastMessageTime[player.UserId]) < COOLDOWN_SECONDS then
+        return
+    end
+    _lastMessageTime[player.UserId] = now
+
+    -- Trim and limit
+    message = string.sub(message, 1, MAX_MESSAGE_LENGTH)
+    if #message == 0 then
+        return
+    end
+
+    -- Filter text
+    local filtered = self:_filterText(player, message)
+    if not filtered then
+        return
+    end
+
+    local data = DataManager:GetData(player)
+
+    local entry = {
+        sender = player.Name,
+        senderDisplay = player.DisplayName,
+        senderId = player.UserId,
+        message = filtered,
+        timestamp = DateTime.now().UnixTimestamp,
+        rank = data and data.rank or "None",
+        isAdmin = data and data.isAdmin or false,
+    }
+
+    table.insert(self._chatHistory, entry)
+    if #self._chatHistory > MAX_PUBLIC_HISTORY then
+        table.remove(self._chatHistory, 1)
+    end
+
+    -- Broadcast to all players
+    RemoteManager:FireAllClients("ChatPublicMessage", entry)
+end
+
+function ChatService:_handlePrivateMessage(player: Player, targetUserId: number, message: string)
+    if type(message) ~= "string" or type(targetUserId) ~= "number" then
+        return
+    end
+
+    -- Rate limit
+    local now = os.clock()
+    if _lastMessageTime[player.UserId] and (now - _lastMessageTime[player.UserId]) < COOLDOWN_SECONDS then
+        return
+    end
+    _lastMessageTime[player.UserId] = now
+
+    -- Trim and limit
+    message = string.sub(message, 1, MAX_MESSAGE_LENGTH)
+    if #message == 0 then
+        return
+    end
+
+    -- Filter text
+    local filtered = self:_filterText(player, message)
+    if not filtered then
+        return
+    end
+
+    local target = nil
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p.UserId == targetUserId then
+            target = p
+            break
+        end
+    end
+
+    if not target then
+        RemoteManager:FireClient("ChatPrivateMessage", player, {
+            sender = "النظام",
+            senderDisplay = "النظام",
+            senderId = 0,
+            message = "اللاعب غير متصل",
+            timestamp = DateTime.now().UnixTimestamp,
+            isSystem = true,
+        })
+        return
+    end
+
+    local entry = {
+        sender = player.Name,
+        senderDisplay = player.DisplayName,
+        senderId = player.UserId,
+        targetId = targetUserId,
+        message = filtered,
+        timestamp = DateTime.now().UnixTimestamp,
+    }
+
+    -- Store in history
+    local key = self:_chatKey(player.UserId, targetUserId)
+    if not self._privateChats[key] then
+        self._privateChats[key] = {}
+    end
+    table.insert(self._privateChats[key], entry)
+    if #self._privateChats[key] > MAX_PRIVATE_HISTORY then
+        table.remove(self._privateChats[key], 1)
+    end
+
+    -- Send to both parties
+    RemoteManager:FireClient("ChatPrivateMessage", player, entry)
+    RemoteManager:FireClient("ChatPrivateMessage", target, entry)
+end
+
+function ChatService:_filterText(player: Player, message: string): string?
+    local success, result = pcall(function()
+        local textObject = TextService:FilterStringAsync(message, player.UserId)
+        return textObject:GetNonChatStringForBroadcastAsync()
+    end)
+    if success then
+        return result
+    end
+    -- Fallback: return original if filter fails (dev environment)
+    return message
+end
+
+function ChatService:_chatKey(userId1: number, userId2: number): string
+    local minId = math.min(userId1, userId2)
+    local maxId = math.max(userId1, userId2)
+    return tostring(minId) .. "_" .. tostring(maxId)
+end
+
+return ChatService
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="14">
+          <Properties>
             <string name="Name">CodeService</string>
             <string name="Source"><![CDATA[local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -1090,7 +2131,7 @@ return CodeService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="11">
+        <Item class="ModuleScript" referent="15">
           <Properties>
             <string name="Name">ComputerService</string>
             <string name="Source"><![CDATA[local _Players = game:GetService("Players")
@@ -1157,7 +2198,7 @@ return ComputerService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="12">
+        <Item class="ModuleScript" referent="16">
           <Properties>
             <string name="Name">DataManager</string>
             <string name="Source"><![CDATA[local DataStoreService = game:GetService("DataStoreService")
@@ -1264,6 +2305,18 @@ function DataManager:Init()
     RemoteManager:SetServerCallback("GetPlayerData", function(player)
         return self:GetData(player)
     end)
+
+    RemoteManager:SetServerCallback("GetInventory", function(player)
+        local data = self:GetData(player)
+        if not data then
+            return { vehicles = {}, properties = {}, cameras = {} }
+        end
+        return {
+            vehicles = data.ownedVehicles or {},
+            properties = data.ownedProperties or {},
+            cameras = { data.cameraType or "Beginner" },
+        }
+    end)
 end
 
 function DataManager:_loadPlayerData(player: Player)
@@ -1271,12 +2324,15 @@ function DataManager:_loadPlayerData(player: Player)
         return self._dataStore:GetAsync("Player_" .. player.UserId)
     end)
 
+    local isNewPlayer = false
+
     if success and data then
         -- Merge with defaults for any missing keys
         local merged = self:_mergeDefaults(data)
         merged.lastLogin = DateTime.now().UnixTimestamp
         if merged.joinDate == 0 then
             merged.joinDate = DateTime.now().UnixTimestamp
+            isNewPlayer = true
         end
         self._playerData[player.UserId] = merged
     else
@@ -1287,9 +2343,20 @@ function DataManager:_loadPlayerData(player: Player)
         fresh.joinDate = DateTime.now().UnixTimestamp
         fresh.lastLogin = DateTime.now().UnixTimestamp
         self._playerData[player.UserId] = fresh
+        isNewPlayer = true
     end
 
     self._lastSaveTime[player.UserId] = os.clock()
+
+    -- Welcome bonus for new players
+    if isNewPlayer then
+        local playerData = self._playerData[player.UserId]
+        playerData.cash = Constants.STARTING_CASH + Constants.WELCOME_BONUS
+        playerData.totalEarned = Constants.WELCOME_BONUS
+        task.defer(function()
+            RemoteManager:FireClient("WelcomeBonus", player, Constants.WELCOME_BONUS)
+        end)
+    end
 
     -- Notify client
     RemoteManager:FireClient("PlayerDataLoaded", player, self._playerData[player.UserId])
@@ -1395,7 +2462,7 @@ return DataManager
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="13">
+        <Item class="ModuleScript" referent="17">
           <Properties>
             <string name="Name">EconomyService</string>
             <string name="Source"><![CDATA[local _Players = game:GetService("Players")
@@ -1549,7 +2616,7 @@ return EconomyService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="14">
+        <Item class="ModuleScript" referent="18">
           <Properties>
             <string name="Name">EventService</string>
             <string name="Source"><![CDATA[local Players = game:GetService("Players")
@@ -1723,7 +2790,7 @@ return EventService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="15">
+        <Item class="ModuleScript" referent="19">
           <Properties>
             <string name="Name">FameService</string>
             <string name="Source"><![CDATA[local Players = game:GetService("Players")
@@ -1796,7 +2863,178 @@ return FameService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="16">
+        <Item class="ModuleScript" referent="20">
+          <Properties>
+            <string name="Name">GamePassService</string>
+            <string name="Source"><![CDATA[--[[
+    Arab City - Game Pass Service
+    Manages game pass ownership, benefits, and purchase prompts.
+    Game Pass IDs are placeholders (0) — replace with actual IDs from Creator Hub.
+]]
+
+local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = require(ReplicatedStorage:WaitForChild("ArabCity_Shared"))
+local Constants = Shared.Constants
+local RemoteManager = Shared.RemoteManager
+
+local DataManager
+
+local GamePassService = {}
+GamePassService._ownedPasses = {} -- [userId] = { passName = true }
+
+function GamePassService:Init(dataManager)
+    DataManager = dataManager
+
+    Players.PlayerAdded:Connect(function(player)
+        task.defer(function()
+            self:_loadPlayerPasses(player)
+        end)
+    end)
+
+    Players.PlayerRemoving:Connect(function(player)
+        self._ownedPasses[player.UserId] = nil
+    end)
+
+    -- Handle purchases
+    MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, gamePassId, purchased)
+        if purchased then
+            self:_onPassPurchased(player, gamePassId)
+        end
+    end)
+
+    -- Client requests to prompt a purchase
+    RemoteManager:OnServerEvent("GamePassPrompt", function(player, passName)
+        self:PromptPurchase(player, passName)
+    end)
+
+    -- Client queries owned passes
+    RemoteManager:SetServerCallback("GetOwnedGamePasses", function(player)
+        return self:GetOwnedPasses(player)
+    end)
+
+    -- Apply speed benefit periodically
+    task.spawn(function()
+        while true do
+            task.wait(5)
+            for _, player in ipairs(Players:GetPlayers()) do
+                self:_applySpeedBenefit(player)
+            end
+        end
+    end)
+end
+
+function GamePassService:_loadPlayerPasses(player: Player)
+    self._ownedPasses[player.UserId] = {}
+
+    -- Wait for data
+    local attempts = 0
+    while not DataManager:GetData(player) and attempts < 50 do
+        task.wait(0.2)
+        attempts += 1
+    end
+
+    for _, pass in ipairs(Constants.GAME_PASSES) do
+        if pass.id > 0 then
+            local success, owns = pcall(function()
+                return MarketplaceService:UserOwnsGamePassAsync(player.UserId, pass.id)
+            end)
+            if success and owns then
+                self._ownedPasses[player.UserId][pass.name] = true
+            end
+        end
+    end
+
+    -- Notify client of owned passes
+    RemoteManager:FireClient("GamePassOwned", player, self._ownedPasses[player.UserId] or {})
+end
+
+function GamePassService:_onPassPurchased(player: Player, gamePassId: number)
+    for _, pass in ipairs(Constants.GAME_PASSES) do
+        if pass.id == gamePassId then
+            if not self._ownedPasses[player.UserId] then
+                self._ownedPasses[player.UserId] = {}
+            end
+            self._ownedPasses[player.UserId][pass.name] = true
+            RemoteManager:FireClient("GamePassOwned", player, self._ownedPasses[player.UserId])
+
+            RemoteManager:FireClient("BuildingAction", player, {
+                type = "notification",
+                title = "Game Pass",
+                message = "تم شراء " .. pass.nameAr .. " بنجاح!",
+                icon = "gamepass",
+            })
+            break
+        end
+    end
+end
+
+function GamePassService:PromptPurchase(player: Player, passName: string)
+    for _, pass in ipairs(Constants.GAME_PASSES) do
+        if pass.name == passName and pass.id > 0 then
+            MarketplaceService:PromptGamePassPurchase(player, pass.id)
+            return
+        end
+    end
+end
+
+function GamePassService:OwnsPass(player: Player, passName: string): boolean
+    local owned = self._ownedPasses[player.UserId]
+    if owned then
+        return owned[passName] == true
+    end
+    return false
+end
+
+function GamePassService:HasBenefit(player: Player, benefit: string): boolean
+    local owned = self._ownedPasses[player.UserId]
+    if not owned then
+        return false
+    end
+    for _, pass in ipairs(Constants.GAME_PASSES) do
+        if owned[pass.name] then
+            for _, b in ipairs(pass.benefits) do
+                if b == benefit then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
+function GamePassService:GetOwnedPasses(player: Player): { [string]: boolean }
+    return self._ownedPasses[player.UserId] or {}
+end
+
+function GamePassService:GetMoneyMultiplier(player: Player): number
+    if self:HasBenefit(player, "doubleMoney") then
+        return 2
+    end
+    return 1
+end
+
+function GamePassService:_applySpeedBenefit(player: Player)
+    if not self:HasBenefit(player, "extraSpeed") then
+        return
+    end
+    local character = player.Character
+    if not character then
+        return
+    end
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid and humanoid.WalkSpeed < 24 then
+        humanoid.WalkSpeed = 24 -- 50% faster than default 16
+    end
+end
+
+return GamePassService
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="21">
           <Properties>
             <string name="Name">JobService</string>
             <string name="Source"><![CDATA[local Players = game:GetService("Players")
@@ -1919,7 +3157,7 @@ return JobService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="17">
+        <Item class="ModuleScript" referent="22">
           <Properties>
             <string name="Name">MapBuilder</string>
             <string name="Source"><![CDATA[--[[
@@ -2091,6 +3329,16 @@ local function makePropertyMarker(parent, propId, nameAr, price, rooms, area, po
     cfg.Parent = marker
 
     addBillboard(marker, "🏠 " .. nameAr .. "\n💰 " .. tostring(price) .. "$", COL.Gold, Vector3.new(0, 4, 0))
+
+    -- Interaction prompt for buying
+    local prompt = Instance.new("ProximityPrompt")
+    prompt.ActionText = "شراء"
+    prompt.ObjectText = nameAr
+    prompt.MaxActivationDistance = 12
+    prompt.HoldDuration = 0.5
+    prompt.RequiresLineOfSight = false
+    prompt.Parent = marker
+
     return marker
 end
 
@@ -2098,7 +3346,20 @@ end
 -- Building Generators
 ----------------------------------------------------------------------------
 
-local function makeBuilding(parent, name, cx, cz, w, d, h, wallColor, roofColor, windowColor, labelText, labelColor)
+local function addProximityPrompt(parent, buildingType, actionText)
+    local prompt = Instance.new("ProximityPrompt")
+    prompt.ActionText = actionText or "دخول"
+    prompt.ObjectText = buildingType or ""
+    prompt.MaxActivationDistance = 10
+    prompt.HoldDuration = 0.3
+    prompt.RequiresLineOfSight = false
+    prompt.Parent = parent
+    CollectionService:AddTag(parent, "InteractiveBuilding")
+    parent:SetAttribute("BuildingType", buildingType)
+    return prompt
+end
+
+local function makeBuilding(parent, name, cx, cz, w, d, h, wallColor, roofColor, windowColor, labelText, labelColor, buildingType)
     local model = makeModel(parent, name)
     wallColor = wallColor or COL.WallLight
     roofColor = roofColor or COL.Roof
@@ -2130,8 +3391,11 @@ local function makeBuilding(parent, name, cx, cz, w, d, h, wallColor, roofColor,
         end
     end
 
-    -- Door
-    makePart(model, "Door", Vector3.new(3, 5, 0.3), Vector3.new(cx, 2.5, cz + d / 2 + 0.15), COL.WallDark, MAT.Metal)
+    -- Door with interaction
+    local door = makePart(model, "Door", Vector3.new(3, 5, 0.3), Vector3.new(cx, 2.5, cz + d / 2 + 0.15), COL.WallDark, MAT.Metal)
+    if buildingType then
+        addProximityPrompt(door, buildingType, "دخول")
+    end
 
     -- Label
     if labelText then
@@ -2145,7 +3409,18 @@ local function makeHouse(parent, name, cx, cz, wallColor)
     local model = makeModel(parent, name)
     wallColor = wallColor or COL.WallLight
 
-    makePart(model, "Body", Vector3.new(14, 6, 12), Vector3.new(cx, 3, cz), wallColor, MAT.Concrete)
+    -- Exterior walls (4 walls with opening for door)
+    makePart(model, "WallFront_L", Vector3.new(4.5, 6, 0.4), Vector3.new(cx - 4.75, 3, cz + 6), wallColor, MAT.Concrete)
+    makePart(model, "WallFront_R", Vector3.new(4.5, 6, 0.4), Vector3.new(cx + 4.75, 3, cz + 6), wallColor, MAT.Concrete)
+    makePart(model, "WallFront_Top", Vector3.new(3, 2, 0.4), Vector3.new(cx, 5, cz + 6), wallColor, MAT.Concrete)
+    makePart(model, "WallBack", Vector3.new(14, 6, 0.4), Vector3.new(cx, 3, cz - 6), wallColor, MAT.Concrete)
+    makePart(model, "WallLeft", Vector3.new(0.4, 6, 12), Vector3.new(cx - 7, 3, cz), wallColor, MAT.Concrete)
+    makePart(model, "WallRight", Vector3.new(0.4, 6, 12), Vector3.new(cx + 7, 3, cz), wallColor, MAT.Concrete)
+
+    -- Floor
+    makePart(model, "Floor", Vector3.new(14, 0.4, 12), Vector3.new(cx, 0.2, cz), Color3.fromRGB(160, 140, 120), MAT.Wood)
+
+    -- Roof
     makePart(model, "Roof", Vector3.new(16, 1, 14), Vector3.new(cx, 6.5, cz), COL.Roof, MAT.Concrete)
 
     -- Windows
@@ -2153,8 +3428,16 @@ local function makeHouse(parent, name, cx, cz, wallColor)
         makePart(model, "Win", Vector3.new(2, 2, 0.2), Vector3.new(cx + offX, 3.5, cz + 6.1), COL.Window, MAT.Glass, { Transparency = 0.3 })
     end
 
-    -- Door
-    makePart(model, "Door", Vector3.new(2.5, 4, 0.3), Vector3.new(cx, 2, cz + 6.15), COL.WallDark, MAT.Wood)
+    -- Door frame (interactive)
+    local door = makePart(model, "Door", Vector3.new(2.5, 4, 0.3), Vector3.new(cx, 2, cz + 6.15), COL.WallDark, MAT.Wood)
+    addProximityPrompt(door, "Property", "معلومات")
+
+    -- Interior furniture
+    makePart(model, "Sofa", Vector3.new(4, 1.5, 1.5), Vector3.new(cx - 4, 0.95, cz - 4), Color3.fromRGB(100, 60, 40), MAT.Smooth)
+    makePart(model, "Table", Vector3.new(2.5, 1, 2.5), Vector3.new(cx - 4, 0.7, cz - 1), Color3.fromRGB(120, 80, 40), MAT.Wood)
+    makePart(model, "Bed", Vector3.new(3, 1, 5), Vector3.new(cx + 4, 0.7, cz - 2), Color3.fromRGB(200, 200, 220), MAT.Smooth)
+    makePart(model, "TV", Vector3.new(3, 2, 0.2), Vector3.new(cx - 4, 2.5, cz - 5.7), Color3.fromRGB(20, 20, 25), MAT.Smooth)
+    makePart(model, "Kitchen", Vector3.new(3, 2, 1.5), Vector3.new(cx + 4, 1.2, cz + 4), Color3.fromRGB(180, 180, 190), MAT.Metal)
 
     -- Yard
     makePart(model, "Yard", Vector3.new(18, 0.2, 8), Vector3.new(cx, 0.1, cz + 12), COL.Grass, MAT.Grass)
@@ -2328,7 +3611,7 @@ function MapBuilder:_buildCommercialDistrict()
     local district = makeModel(self._cityFolder, "Commercial")
 
     -- Mall (large building east)
-    local mall = makeBuilding(district, "Mall", 120, 0, 60, 40, 25, COL.WallLight, COL.Roof, COL.Window, "🏬 المركز التجاري", COL.NeonCyan)
+    local mall = makeBuilding(district, "Mall", 120, 0, 60, 40, 25, COL.WallLight, COL.Roof, COL.Window, "🏬 المركز التجاري", COL.NeonCyan, "Mall")
 
     -- Glass facade
     makePart(mall, "GlassFront", Vector3.new(58, 20, 0.5), Vector3.new(120, 12, 21), Color3.fromRGB(100, 170, 220), MAT.Glass, { Transparency = 0.4 })
@@ -2337,7 +3620,7 @@ function MapBuilder:_buildCommercialDistrict()
     makePart(mall, "NeonEntrance", Vector3.new(10, 1, 0.3), Vector3.new(120, 22, 20.5), COL.NeonPink, MAT.Neon)
 
     -- Bank
-    makeBuilding(district, "Bank", 120, 70, 30, 25, 20, Color3.fromRGB(50, 60, 80), COL.Roof, COL.Window, "🏦 البنك المركزي", COL.Gold)
+    makeBuilding(district, "Bank", 120, 70, 30, 25, 20, Color3.fromRGB(50, 60, 80), COL.Roof, COL.Window, "🏦 البنك المركزي", COL.Gold, "Bank")
 
     -- Bank vault door decoration
     makePart(district, "VaultDoor", Vector3.new(4, 6, 0.5), Vector3.new(120, 3, 82.8), COL.Gold, MAT.Metal)
@@ -2394,7 +3677,7 @@ function MapBuilder:_buildAirport()
     local airport = makeModel(self._cityFolder, "Airport")
 
     -- Terminal building
-    makeBuilding(airport, "Terminal", -200, 0, 80, 30, 15, Color3.fromRGB(200, 210, 220), COL.Roof, COL.Window, "✈️ مطار Arab City الدولي", COL.Gold)
+    makeBuilding(airport, "Terminal", -200, 0, 80, 30, 15, Color3.fromRGB(200, 210, 220), COL.Roof, COL.Window, "✈️ مطار Arab City الدولي", COL.Gold, "Airport")
 
     -- Glass facade
     makePart(airport, "GlassFacade", Vector3.new(78, 12, 0.5), Vector3.new(-200, 8, 16), Color3.fromRGB(120, 180, 230), MAT.Glass, { Transparency = 0.35 })
@@ -2430,7 +3713,7 @@ end
 function MapBuilder:_buildHospital()
     local hospital = makeModel(self._cityFolder, "Hospital")
 
-    local building = makeBuilding(hospital, "HospitalMain", 80, 150, 40, 30, 22, COL.HospWhite, COL.Roof, COL.Window, "🏥 مستشفى Arab City", Color3.fromRGB(255, 80, 80))
+    local building = makeBuilding(hospital, "HospitalMain", 80, 150, 40, 30, 22, COL.HospWhite, COL.Roof, COL.Window, "🏥 مستشفى Arab City", Color3.fromRGB(255, 80, 80), "Hospital")
 
     -- Red cross on front
     makePart(building, "CrossH", Vector3.new(8, 2, 0.3), Vector3.new(80, 18, 165.2), COL.Red, MAT.Neon)
@@ -2446,7 +3729,7 @@ end
 function MapBuilder:_buildPoliceStation()
     local station = makeModel(self._cityFolder, "PoliceStation")
 
-    makeBuilding(station, "PoliceMain", 80, 220, 35, 25, 15, COL.PoliceBlue, COL.Roof, COL.Window, "🚔 مركز الشرطة", COL.Blue)
+    makeBuilding(station, "PoliceMain", 80, 220, 35, 25, 15, COL.PoliceBlue, COL.Roof, COL.Window, "🚔 مركز الشرطة", COL.Blue, "PoliceStation")
 
     -- Police sign with neon
     local neonBar = makePart(station, "NeonBar", Vector3.new(20, 1, 0.3), Vector3.new(80, 14, 232.7), COL.Blue, MAT.Neon)
@@ -2459,7 +3742,7 @@ end
 function MapBuilder:_buildFireStation()
     local station = makeModel(self._cityFolder, "FireStation")
 
-    makeBuilding(station, "FireMain", -80, -120, 35, 25, 12, COL.Red, COL.Roof, COL.Window, "🚒 مركز الإطفاء", COL.Red)
+    makeBuilding(station, "FireMain", -80, -120, 35, 25, 12, COL.Red, COL.Roof, COL.Window, "🚒 مركز الإطفاء", COL.Red, "FireStation")
 
     -- Garage door
     makePart(station, "GarageDoor", Vector3.new(10, 8, 0.5), Vector3.new(-80, 4, -107.3), Color3.fromRGB(180, 40, 40), MAT.Metal)
@@ -2488,7 +3771,7 @@ function MapBuilder:_buildVIPZone()
     end
 
     -- VIP lounge building
-    makeBuilding(vip, "VIPLounge", -150, 150, 30, 20, 10, Color3.fromRGB(30, 25, 40), COL.Roof, COL.Gold, "⭐ منطقة VIP", COL.Gold)
+    makeBuilding(vip, "VIPLounge", -150, 150, 30, 20, 10, Color3.fromRGB(30, 25, 40), COL.Roof, COL.Gold, "⭐ منطقة VIP", COL.Gold, "VIPLounge")
 
     -- Neon accents
     makePart(vip, "NeonFloor1", Vector3.new(60, 0.3, 2), Vector3.new(-150, 1.2, 130), COL.Gold, MAT.Neon)
@@ -2501,7 +3784,7 @@ function MapBuilder:_buildCarDealership()
     local dealer = makeModel(self._cityFolder, "CarDealership")
 
     -- Showroom
-    local showroom = makeBuilding(dealer, "Showroom", 180, -120, 50, 35, 12, COL.WallLight, COL.Roof, COL.Window, "🚗 معرض السيارات", COL.NeonCyan)
+    local showroom = makeBuilding(dealer, "Showroom", 180, -120, 50, 35, 12, COL.WallLight, COL.Roof, COL.Window, "🚗 معرض السيارات", COL.NeonCyan, "CarDealership")
 
     -- Glass walls (transparent showroom)
     makePart(showroom, "GlassWall_F", Vector3.new(48, 10, 0.5), Vector3.new(180, 6, -102.3), COL.Window, MAT.Glass, { Transparency = 0.4 })
@@ -2591,14 +3874,14 @@ function MapBuilder:_buildVehicleSpawns()
 end
 
 function MapBuilder:_setupLighting()
-    -- Midnight blue atmosphere for Neon theme
-    Lighting.ClockTime = 21 -- 9 PM (nighttime for neon feel)
+    -- Morning sunlit atmosphere
+    Lighting.ClockTime = 9 -- 9 AM (morning)
     Lighting.GlobalShadows = true
-    Lighting.Brightness = 0.8
-    Lighting.OutdoorAmbient = Color3.fromRGB(50, 60, 80)
-    Lighting.Ambient = Color3.fromRGB(30, 35, 50)
-    Lighting.FogEnd = 2000
-    Lighting.FogColor = Color3.fromRGB(10, 15, 30)
+    Lighting.Brightness = 2
+    Lighting.OutdoorAmbient = Color3.fromRGB(170, 170, 170)
+    Lighting.Ambient = Color3.fromRGB(100, 105, 115)
+    Lighting.FogEnd = 5000
+    Lighting.FogColor = Color3.fromRGB(180, 200, 230)
 
     -- Atmosphere
     local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
@@ -2606,12 +3889,12 @@ function MapBuilder:_setupLighting()
         atmosphere = Instance.new("Atmosphere")
         atmosphere.Parent = Lighting
     end
-    atmosphere.Density = 0.35
-    atmosphere.Offset = 0.2
-    atmosphere.Color = Color3.fromRGB(20, 25, 50)
-    atmosphere.Decay = Color3.fromRGB(10, 12, 30)
-    atmosphere.Glare = 0.2
-    atmosphere.Haze = 3
+    atmosphere.Density = 0.25
+    atmosphere.Offset = 0.25
+    atmosphere.Color = Color3.fromRGB(199, 170, 107)
+    atmosphere.Decay = Color3.fromRGB(92, 100, 120)
+    atmosphere.Glare = 0.1
+    atmosphere.Haze = 1.5
 
     -- Sky
     local sky = Lighting:FindFirstChildOfClass("Sky")
@@ -2619,30 +3902,30 @@ function MapBuilder:_setupLighting()
         sky = Instance.new("Sky")
         sky.Parent = Lighting
     end
-    sky.StarCount = 5000
-    sky.MoonAngularSize = 14
-    sky.SunAngularSize = 8
+    sky.StarCount = 0
+    sky.MoonAngularSize = 8
+    sky.SunAngularSize = 18
 
-    -- Bloom for neon glow
+    -- Bloom for soft glow
     local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
     if not bloom then
         bloom = Instance.new("BloomEffect")
         bloom.Parent = Lighting
     end
-    bloom.Intensity = 0.8
-    bloom.Size = 30
-    bloom.Threshold = 0.7
+    bloom.Intensity = 0.4
+    bloom.Size = 24
+    bloom.Threshold = 0.85
 
-    -- Color correction
+    -- Color correction - warm morning tint
     local cc = Lighting:FindFirstChildOfClass("ColorCorrectionEffect")
     if not cc then
         cc = Instance.new("ColorCorrectionEffect")
         cc.Parent = Lighting
     end
-    cc.Brightness = 0.02
-    cc.Contrast = 0.15
-    cc.Saturation = 0.2
-    cc.TintColor = Color3.fromRGB(220, 230, 255)
+    cc.Brightness = 0.03
+    cc.Contrast = 0.1
+    cc.Saturation = 0.15
+    cc.TintColor = Color3.fromRGB(255, 245, 230)
 
     -- Sun rays
     local sunRays = Lighting:FindFirstChildOfClass("SunRaysEffect")
@@ -2650,15 +3933,15 @@ function MapBuilder:_setupLighting()
         sunRays = Instance.new("SunRaysEffect")
         sunRays.Parent = Lighting
     end
-    sunRays.Intensity = 0.05
-    sunRays.Spread = 0.5
+    sunRays.Intensity = 0.15
+    sunRays.Spread = 0.8
 end
 
 return MapBuilder
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="18">
+        <Item class="ModuleScript" referent="23">
           <Properties>
             <string name="Name">MissionService</string>
             <string name="Source"><![CDATA[local Players = game:GetService("Players")
@@ -2821,7 +4104,7 @@ return MissionService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="19">
+        <Item class="ModuleScript" referent="24">
           <Properties>
             <string name="Name">PalaceService</string>
             <string name="Source"><![CDATA[local Players = game:GetService("Players")
@@ -3046,7 +4329,7 @@ return PalaceService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="20">
+        <Item class="ModuleScript" referent="25">
           <Properties>
             <string name="Name">RankService</string>
             <string name="Source"><![CDATA[local Players = game:GetService("Players")
@@ -3168,7 +4451,7 @@ return RankService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="21">
+        <Item class="ModuleScript" referent="26">
           <Properties>
             <string name="Name">RealEstateService</string>
             <string name="Source"><![CDATA[local Players = game:GetService("Players")
@@ -3398,7 +4681,7 @@ return RealEstateService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="22">
+        <Item class="ModuleScript" referent="27">
           <Properties>
             <string name="Name">SocialNetworkService</string>
             <string name="Source"><![CDATA[local Players = game:GetService("Players")
@@ -3683,7 +4966,7 @@ return SocialNetworkService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="23">
+        <Item class="ModuleScript" referent="28">
           <Properties>
             <string name="Name">VehicleService</string>
             <string name="Source"><![CDATA[local Players = game:GetService("Players")
@@ -3960,7 +5243,7 @@ return VehicleService
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="24">
+        <Item class="ModuleScript" referent="29">
           <Properties>
             <string name="Name">WeatherService</string>
             <string name="Source"><![CDATA[local Lighting = game:GetService("Lighting")
@@ -3972,7 +5255,7 @@ local RemoteManager = Shared.RemoteManager
 
 local WeatherService = {}
 WeatherService._currentWeather = "Clear"
-WeatherService._timeOfDay = 21 -- hours (0-24), start at 9PM for Midnight Blue Neon theme
+WeatherService._timeOfDay = 9 -- hours (0-24), start at 9AM for morning theme
 
 function WeatherService:Init()
     self:_setupLighting()
@@ -4111,11 +5394,11 @@ return WeatherService
       </Item>
     </Item>
   </Item>
-  <Item class="StarterGui" referent="25">
+  <Item class="StarterGui" referent="30">
     <Properties>
       <string name="Name">StarterGui</string>
     </Properties>
-    <Item class="ModuleScript" referent="26">
+    <Item class="ModuleScript" referent="31">
       <Properties>
         <string name="Name">ArabCity_GUI</string>
         <string name="Source"><![CDATA[--[[
@@ -4730,6 +6013,698 @@ local function buildMissionsPanel(): ScreenGui
 end
 
 -- ═══════════════════════════════════════════════
+-- ADMIN PANEL (only visible to admins)
+-- ═══════════════════════════════════════════════
+local function buildAdminPanel(): ScreenGui
+    local gui, _panel, content = createPanel("AdminPanel", "لوحة التحكم", "🛡️")
+
+    -- Player selector dropdown
+    local selectorFrame = Instance.new("Frame")
+    selectorFrame.Size = UDim2.new(1, 0, 0, 40)
+    selectorFrame.BackgroundTransparency = 1
+    selectorFrame.ZIndex = 53
+    selectorFrame.Parent = content
+
+    local playerDropdown = Instance.new("TextButton")
+    playerDropdown.Name = "PlayerDropdown"
+    playerDropdown.Size = UDim2.new(1, 0, 1, 0)
+    playerDropdown.BackgroundColor3 = COLORS.CardBg
+    playerDropdown.BorderSizePixel = 0
+    playerDropdown.Text = "اختر لاعب..."
+    playerDropdown.TextColor3 = COLORS.TextDim
+    playerDropdown.Font = Enum.Font.GothamMedium
+    playerDropdown.TextSize = 14
+    playerDropdown.ZIndex = 54
+    playerDropdown.Parent = selectorFrame
+
+    Instance.new("UICorner", playerDropdown).CornerRadius = UDim.new(0, 10)
+
+    local selectedUserId = nil
+
+    -- Player list (hidden by default)
+    local playerListFrame = Instance.new("ScrollingFrame")
+    playerListFrame.Name = "PlayerList"
+    playerListFrame.Size = UDim2.new(1, 0, 0, 120)
+    playerListFrame.Position = UDim2.new(0, 0, 0, 44)
+    playerListFrame.BackgroundColor3 = COLORS.CardBg
+    playerListFrame.BorderSizePixel = 0
+    playerListFrame.ScrollBarThickness = 3
+    playerListFrame.Visible = false
+    playerListFrame.ZIndex = 60
+    playerListFrame.Parent = content
+
+    Instance.new("UICorner", playerListFrame).CornerRadius = UDim.new(0, 8)
+
+    local playerListLayout = Instance.new("UIListLayout")
+    playerListLayout.Padding = UDim.new(0, 2)
+    playerListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    playerListLayout.Parent = playerListFrame
+
+    local function refreshPlayerList()
+        for _, child in ipairs(playerListFrame:GetChildren()) do
+            if child:IsA("TextButton") then
+                child:Destroy()
+            end
+        end
+        local list = RemoteManager:InvokeServer("GetPlayerList")
+        if not list then
+            return
+        end
+        for i, p in ipairs(list) do
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1, 0, 0, 28)
+            btn.BackgroundColor3 = COLORS.Secondary
+            btn.BackgroundTransparency = 0.5
+            btn.BorderSizePixel = 0
+            btn.Text = p.displayName .. " (@" .. p.name .. ") - $" .. tostring(p.cash)
+            btn.TextColor3 = p.isAdmin and COLORS.Gold or COLORS.Text
+            btn.Font = Enum.Font.GothamMedium
+            btn.TextSize = 12
+            btn.LayoutOrder = i
+            btn.ZIndex = 61
+            btn.Parent = playerListFrame
+
+            btn.MouseButton1Click:Connect(function()
+                selectedUserId = p.userId
+                playerDropdown.Text = p.displayName .. " (@" .. p.name .. ")"
+                playerDropdown.TextColor3 = COLORS.Text
+                playerListFrame.Visible = false
+            end)
+        end
+        playerListFrame.CanvasSize = UDim2.new(0, 0, 0, #list * 30)
+    end
+
+    playerDropdown.MouseButton1Click:Connect(function()
+        playerListFrame.Visible = not playerListFrame.Visible
+        if playerListFrame.Visible then
+            refreshPlayerList()
+        end
+    end)
+
+    -- Action buttons area
+    local actionsY = 170
+
+    -- Result label
+    local resultLabel = Instance.new("TextLabel")
+    resultLabel.Name = "AdminResult"
+    resultLabel.Size = UDim2.new(1, 0, 0, 24)
+    resultLabel.Position = UDim2.new(0, 0, 0, actionsY - 30)
+    resultLabel.BackgroundTransparency = 1
+    resultLabel.Text = ""
+    resultLabel.TextColor3 = COLORS.Success
+    resultLabel.Font = Enum.Font.GothamMedium
+    resultLabel.TextSize = 13
+    resultLabel.ZIndex = 54
+    resultLabel.Parent = content
+
+    RemoteManager:OnClientEvent("AdminResponse", function(data)
+        if data.success then
+            resultLabel.Text = data.message
+            resultLabel.TextColor3 = COLORS.Success
+        else
+            resultLabel.Text = data.message
+            resultLabel.TextColor3 = COLORS.Danger
+        end
+        task.delay(4, function()
+            resultLabel.Text = ""
+        end)
+    end)
+
+    local function makeActionBtn(text, yPos, color, callback)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0.48, 0, 0, 36)
+        btn.Position = yPos
+        btn.BackgroundColor3 = color
+        btn.BackgroundTransparency = 0.2
+        btn.BorderSizePixel = 0
+        btn.Text = text
+        btn.TextColor3 = COLORS.Text
+        btn.Font = Enum.Font.GothamBold
+        btn.TextSize = 13
+        btn.ZIndex = 54
+        btn.Parent = content
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+        btn.MouseButton1Click:Connect(callback)
+        return btn
+    end
+
+    -- Row 1: Give Money + Kick
+    makeActionBtn("💰 إعطاء نقود", UDim2.new(0, 0, 0, actionsY), COLORS.Success, function()
+        if not selectedUserId then
+            resultLabel.Text = "اختر لاعب أولاً"
+            resultLabel.TextColor3 = COLORS.Danger
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "giveMoney", {
+            targetUserId = selectedUserId,
+            amount = 5000,
+        })
+    end)
+
+    makeActionBtn("🚪 طرد", UDim2.new(0.52, 0, 0, actionsY), COLORS.Danger, function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "kick", {
+            targetUserId = selectedUserId,
+            reason = "طرد بواسطة الإدارة",
+        })
+    end)
+
+    -- Row 2: Temp Ban + Perm Ban
+    makeActionBtn("⏱️ حظر مؤقت (30 دقيقة)", UDim2.new(0, 0, 0, actionsY + 44), Color3.fromRGB(200, 120, 0), function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "ban", {
+            targetUserId = selectedUserId,
+            reason = "مخالفة القوانين",
+            duration = 1800, -- 30 minutes
+        })
+    end)
+
+    makeActionBtn("🚫 حظر دائم", UDim2.new(0.52, 0, 0, actionsY + 44), COLORS.Danger, function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "ban", {
+            targetUserId = selectedUserId,
+            reason = "حظر دائم",
+            duration = 0,
+        })
+    end)
+
+    -- Row 3: Promote Job + Unban
+    makeActionBtn("💼 ترقية وظيفة (شرطي)", UDim2.new(0, 0, 0, actionsY + 88), COLORS.Accent, function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "promoteJob", {
+            targetUserId = selectedUserId,
+            jobId = "police",
+        })
+    end)
+
+    makeActionBtn("✅ رفع الحظر", UDim2.new(0.52, 0, 0, actionsY + 88), COLORS.Success, function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "unban", {
+            targetUserId = selectedUserId,
+        })
+    end)
+
+    -- Row 4: Promote Admin + Demote Admin
+    makeActionBtn("👑 ترقية أدمن", UDim2.new(0, 0, 0, actionsY + 132), COLORS.Gold, function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "promoteAdmin", {
+            targetUserId = selectedUserId,
+        })
+    end)
+
+    makeActionBtn("⬇️ إزالة أدمن", UDim2.new(0.52, 0, 0, actionsY + 132), Color3.fromRGB(120, 80, 80), function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "demoteAdmin", {
+            targetUserId = selectedUserId,
+        })
+    end)
+
+    return gui
+end
+
+-- ═══════════════════════════════════════════════
+-- CHAT PANEL (public + private messaging)
+-- ═══════════════════════════════════════════════
+local function buildChatPanel(): ScreenGui
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "ChatPanel"
+    gui.DisplayOrder = 85
+    gui.IgnoreGuiInset = true
+    gui.ResetOnSpawn = false
+    gui.Enabled = true
+
+    -- Chat container (bottom-left)
+    local chatFrame = Instance.new("Frame")
+    chatFrame.Name = "ChatFrame"
+    chatFrame.Size = UDim2.new(0.3, 0, 0.4, 0)
+    chatFrame.Position = UDim2.new(0, 10, 1, -10)
+    chatFrame.AnchorPoint = Vector2.new(0, 1)
+    chatFrame.BackgroundColor3 = COLORS.Primary
+    chatFrame.BackgroundTransparency = 0.15
+    chatFrame.BorderSizePixel = 0
+    chatFrame.ZIndex = 40
+    chatFrame.Parent = gui
+
+    Instance.new("UICorner", chatFrame).CornerRadius = UDim.new(0, 12)
+
+    local chatStroke = Instance.new("UIStroke")
+    chatStroke.Color = COLORS.Accent
+    chatStroke.Thickness = 1
+    chatStroke.Transparency = 0.5
+    chatStroke.Parent = chatFrame
+
+    -- Tab bar (public / private)
+    local tabBar = Instance.new("Frame")
+    tabBar.Size = UDim2.new(1, 0, 0, 32)
+    tabBar.BackgroundColor3 = COLORS.Secondary
+    tabBar.BackgroundTransparency = 0.3
+    tabBar.BorderSizePixel = 0
+    tabBar.ZIndex = 41
+    tabBar.Parent = chatFrame
+
+    Instance.new("UICorner", tabBar).CornerRadius = UDim.new(0, 12)
+
+    local tabLayout = Instance.new("UIListLayout")
+    tabLayout.FillDirection = Enum.FillDirection.Horizontal
+    tabLayout.Parent = tabBar
+
+    local activeTab = "public"
+
+    local publicTab = Instance.new("TextButton")
+    publicTab.Size = UDim2.new(0.5, 0, 1, 0)
+    publicTab.BackgroundColor3 = COLORS.Accent
+    publicTab.BackgroundTransparency = 0.3
+    publicTab.BorderSizePixel = 0
+    publicTab.Text = "💬 عام"
+    publicTab.TextColor3 = COLORS.Text
+    publicTab.Font = Enum.Font.GothamBold
+    publicTab.TextSize = 13
+    publicTab.ZIndex = 42
+    publicTab.Parent = tabBar
+
+    local privateTab = Instance.new("TextButton")
+    privateTab.Size = UDim2.new(0.5, 0, 1, 0)
+    privateTab.BackgroundColor3 = COLORS.CardBg
+    privateTab.BackgroundTransparency = 0.5
+    privateTab.BorderSizePixel = 0
+    privateTab.Text = "📩 خاص"
+    privateTab.TextColor3 = COLORS.TextDim
+    privateTab.Font = Enum.Font.GothamBold
+    privateTab.TextSize = 13
+    privateTab.ZIndex = 42
+    privateTab.Parent = tabBar
+
+    -- Messages scroll
+    local messagesScroll = Instance.new("ScrollingFrame")
+    messagesScroll.Name = "Messages"
+    messagesScroll.Size = UDim2.new(1, -8, 1, -74)
+    messagesScroll.Position = UDim2.new(0, 4, 0, 34)
+    messagesScroll.BackgroundTransparency = 1
+    messagesScroll.ScrollBarThickness = 3
+    messagesScroll.ScrollBarImageColor3 = COLORS.Accent
+    messagesScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    messagesScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    messagesScroll.ZIndex = 41
+    messagesScroll.Parent = chatFrame
+
+    local messagesLayout = Instance.new("UIListLayout")
+    messagesLayout.Padding = UDim.new(0, 3)
+    messagesLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    messagesLayout.Parent = messagesScroll
+
+    -- Private player selector (hidden by default)
+    local privateSelector = Instance.new("Frame")
+    privateSelector.Name = "PrivateSelector"
+    privateSelector.Size = UDim2.new(1, -8, 0, 28)
+    privateSelector.Position = UDim2.new(0, 4, 0, 34)
+    privateSelector.BackgroundColor3 = COLORS.CardBg
+    privateSelector.BorderSizePixel = 0
+    privateSelector.Visible = false
+    privateSelector.ZIndex = 43
+    privateSelector.Parent = chatFrame
+
+    Instance.new("UICorner", privateSelector).CornerRadius = UDim.new(0, 6)
+
+    local privateTo = Instance.new("TextButton")
+    privateTo.Size = UDim2.new(1, 0, 1, 0)
+    privateTo.BackgroundTransparency = 1
+    privateTo.Text = "اختر لاعب للمراسلة..."
+    privateTo.TextColor3 = COLORS.TextDim
+    privateTo.Font = Enum.Font.GothamMedium
+    privateTo.TextSize = 12
+    privateTo.ZIndex = 44
+    privateTo.Parent = privateSelector
+
+    local privateTargetId = nil
+
+    -- Input area
+    local inputFrame = Instance.new("Frame")
+    inputFrame.Size = UDim2.new(1, -8, 0, 34)
+    inputFrame.Position = UDim2.new(0, 4, 1, -38)
+    inputFrame.BackgroundTransparency = 1
+    inputFrame.ZIndex = 41
+    inputFrame.Parent = chatFrame
+
+    local chatInput = Instance.new("TextBox")
+    chatInput.Size = UDim2.new(0.78, 0, 1, 0)
+    chatInput.BackgroundColor3 = COLORS.CardBg
+    chatInput.BorderSizePixel = 0
+    chatInput.PlaceholderText = "اكتب رسالتك..."
+    chatInput.PlaceholderColor3 = COLORS.TextDim
+    chatInput.Text = ""
+    chatInput.TextColor3 = COLORS.Text
+    chatInput.Font = Enum.Font.GothamMedium
+    chatInput.TextSize = 13
+    chatInput.ClearTextOnFocus = false
+    chatInput.ZIndex = 42
+    chatInput.Parent = inputFrame
+
+    Instance.new("UICorner", chatInput).CornerRadius = UDim.new(0, 8)
+    local chatPadding = Instance.new("UIPadding")
+    chatPadding.PaddingLeft = UDim.new(0, 8)
+    chatPadding.PaddingRight = UDim.new(0, 8)
+    chatPadding.Parent = chatInput
+
+    local sendBtn = Instance.new("TextButton")
+    sendBtn.Size = UDim2.new(0.2, 0, 1, 0)
+    sendBtn.Position = UDim2.new(0.8, 0, 0, 0)
+    sendBtn.BackgroundColor3 = COLORS.Accent
+    sendBtn.BorderSizePixel = 0
+    sendBtn.Text = "إرسال"
+    sendBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+    sendBtn.Font = Enum.Font.GothamBold
+    sendBtn.TextSize = 13
+    sendBtn.ZIndex = 42
+    sendBtn.Parent = inputFrame
+
+    Instance.new("UICorner", sendBtn).CornerRadius = UDim.new(0, 8)
+
+    local _messageOrder = 0
+
+    local function addMessageBubble(entry)
+        _messageOrder += 1
+        local bubble = Instance.new("TextLabel")
+        bubble.Size = UDim2.new(1, 0, 0, 0)
+        bubble.AutomaticSize = Enum.AutomaticSize.Y
+        bubble.BackgroundTransparency = 1
+        bubble.TextWrapped = true
+        bubble.RichText = true
+        bubble.TextXAlignment = Enum.TextXAlignment.Left
+        bubble.Font = Enum.Font.Gotham
+        bubble.TextSize = 12
+        bubble.ZIndex = 42
+        bubble.LayoutOrder = _messageOrder
+        bubble.Parent = messagesScroll
+
+        local senderColor = "rgb(100,200,255)"
+        if entry.isAdmin then
+            senderColor = "rgb(255,215,0)"
+        elseif entry.isSystem then
+            senderColor = "rgb(200,200,200)"
+        end
+
+        bubble.Text = '<font color="' .. senderColor .. '"><b>' .. (entry.senderDisplay or entry.sender or "???") .. ':</b></font> ' .. (entry.message or "")
+        bubble.TextColor3 = COLORS.Text
+
+        -- Auto-scroll to bottom
+        task.defer(function()
+            messagesScroll.CanvasPosition = Vector2.new(0, messagesScroll.AbsoluteCanvasSize.Y)
+        end)
+    end
+
+    -- Send message
+    local function sendMessage()
+        local msg = chatInput.Text
+        if msg == "" then
+            return
+        end
+        chatInput.Text = ""
+
+        if activeTab == "public" then
+            RemoteManager:FireServer("ChatSendPublic", msg)
+        else
+            if privateTargetId then
+                RemoteManager:FireServer("ChatSendPrivate", privateTargetId, msg)
+            end
+        end
+    end
+
+    sendBtn.MouseButton1Click:Connect(sendMessage)
+    chatInput.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            sendMessage()
+        end
+    end)
+
+    -- Tab switching
+    publicTab.MouseButton1Click:Connect(function()
+        activeTab = "public"
+        publicTab.BackgroundTransparency = 0.3
+        publicTab.TextColor3 = COLORS.Text
+        privateTab.BackgroundTransparency = 0.7
+        privateTab.TextColor3 = COLORS.TextDim
+        privateSelector.Visible = false
+        messagesScroll.Position = UDim2.new(0, 4, 0, 34)
+        messagesScroll.Size = UDim2.new(1, -8, 1, -74)
+
+        -- Clear and reload public history
+        for _, child in ipairs(messagesScroll:GetChildren()) do
+            if child:IsA("TextLabel") then
+                child:Destroy()
+            end
+        end
+        _messageOrder = 0
+        local history = RemoteManager:InvokeServer("GetChatHistory")
+        if history then
+            for _, entry in ipairs(history) do
+                addMessageBubble(entry)
+            end
+        end
+    end)
+
+    privateTab.MouseButton1Click:Connect(function()
+        activeTab = "private"
+        privateTab.BackgroundTransparency = 0.3
+        privateTab.TextColor3 = COLORS.Text
+        publicTab.BackgroundTransparency = 0.7
+        publicTab.TextColor3 = COLORS.TextDim
+        privateSelector.Visible = true
+        messagesScroll.Position = UDim2.new(0, 4, 0, 64)
+        messagesScroll.Size = UDim2.new(1, -8, 1, -104)
+
+        -- Clear messages
+        for _, child in ipairs(messagesScroll:GetChildren()) do
+            if child:IsA("TextLabel") then
+                child:Destroy()
+            end
+        end
+        _messageOrder = 0
+    end)
+
+    -- Private player selector
+    privateTo.MouseButton1Click:Connect(function()
+        local onlinePlayers = RemoteManager:InvokeServer("GetOnlinePlayers")
+        if not onlinePlayers or #onlinePlayers == 0 then
+            privateTo.Text = "لا يوجد لاعبين متصلين"
+            return
+        end
+
+        -- Cycle through players
+        local current = nil
+        for idx, p in ipairs(onlinePlayers) do
+            if p.userId == privateTargetId then
+                current = idx
+                break
+            end
+        end
+
+        local nextIdx = (current or 0) % #onlinePlayers + 1
+        local nextPlayer = onlinePlayers[nextIdx]
+        privateTargetId = nextPlayer.userId
+        privateTo.Text = "إلى: " .. nextPlayer.displayName .. " (@" .. nextPlayer.name .. ")"
+        privateTo.TextColor3 = COLORS.Accent
+
+        -- Load private chat history
+        for _, child in ipairs(messagesScroll:GetChildren()) do
+            if child:IsA("TextLabel") then
+                child:Destroy()
+            end
+        end
+        _messageOrder = 0
+        local history = RemoteManager:InvokeServer("GetPrivateChat", privateTargetId)
+        if history then
+            for _, entry in ipairs(history) do
+                addMessageBubble(entry)
+            end
+        end
+    end)
+
+    -- Listen for public messages
+    RemoteManager:OnClientEvent("ChatPublicMessage", function(entry)
+        if activeTab == "public" then
+            addMessageBubble(entry)
+        end
+    end)
+
+    -- Listen for private messages
+    RemoteManager:OnClientEvent("ChatPrivateMessage", function(entry)
+        if activeTab == "private" then
+            addMessageBubble(entry)
+        end
+    end)
+
+    return gui
+end
+
+-- ═══════════════════════════════════════════════
+-- NOTIFICATION SYSTEM (toasts)
+-- ═══════════════════════════════════════════════
+local function buildNotificationSystem(): ScreenGui
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "NotificationSystem"
+    gui.DisplayOrder = 100
+    gui.IgnoreGuiInset = true
+    gui.ResetOnSpawn = false
+    gui.Enabled = true
+
+    local notifContainer = Instance.new("Frame")
+    notifContainer.Name = "Notifications"
+    notifContainer.Size = UDim2.new(0.3, 0, 0.5, 0)
+    notifContainer.Position = UDim2.new(1, -10, 0, 80)
+    notifContainer.AnchorPoint = Vector2.new(1, 0)
+    notifContainer.BackgroundTransparency = 1
+    notifContainer.ZIndex = 200
+    notifContainer.Parent = gui
+
+    local notifLayout = Instance.new("UIListLayout")
+    notifLayout.Padding = UDim.new(0, 6)
+    notifLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    notifLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+    notifLayout.Parent = notifContainer
+
+    local _notifOrder = 0
+
+    local function showNotification(title, message, color, duration)
+        _notifOrder += 1
+        color = color or COLORS.Accent
+        duration = duration or 4
+
+        local toast = Instance.new("Frame")
+        toast.Size = UDim2.new(1, 0, 0, 60)
+        toast.BackgroundColor3 = COLORS.Primary
+        toast.BorderSizePixel = 0
+        toast.LayoutOrder = _notifOrder
+        toast.ZIndex = 201
+        toast.Parent = notifContainer
+
+        Instance.new("UICorner", toast).CornerRadius = UDim.new(0, 10)
+
+        local toastStroke = Instance.new("UIStroke")
+        toastStroke.Color = color
+        toastStroke.Thickness = 1.5
+        toastStroke.Parent = toast
+
+        local titleLabel = Instance.new("TextLabel")
+        titleLabel.Size = UDim2.new(1, -16, 0, 22)
+        titleLabel.Position = UDim2.new(0, 8, 0, 6)
+        titleLabel.BackgroundTransparency = 1
+        titleLabel.Text = title
+        titleLabel.TextColor3 = color
+        titleLabel.Font = Enum.Font.GothamBold
+        titleLabel.TextSize = 14
+        titleLabel.TextXAlignment = Enum.TextXAlignment.Right
+        titleLabel.ZIndex = 202
+        titleLabel.Parent = toast
+
+        local msgLabel = Instance.new("TextLabel")
+        msgLabel.Size = UDim2.new(1, -16, 0, 22)
+        msgLabel.Position = UDim2.new(0, 8, 0, 30)
+        msgLabel.BackgroundTransparency = 1
+        msgLabel.Text = message
+        msgLabel.TextColor3 = COLORS.Text
+        msgLabel.Font = Enum.Font.GothamMedium
+        msgLabel.TextSize = 12
+        msgLabel.TextXAlignment = Enum.TextXAlignment.Right
+        msgLabel.ZIndex = 202
+        msgLabel.Parent = toast
+
+        -- Slide in
+        toast.Position = UDim2.new(1, 0, 0, 0)
+        TweenService:Create(toast, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0, 0, 0, 0),
+        }):Play()
+
+        -- Auto remove
+        task.delay(duration, function()
+            TweenService:Create(toast, TweenInfo.new(0.3), {
+                Position = UDim2.new(1, 0, 0, 0),
+                BackgroundTransparency = 1,
+            }):Play()
+            task.delay(0.35, function()
+                toast:Destroy()
+            end)
+        end)
+    end
+
+    -- Welcome bonus notification
+    RemoteManager:OnClientEvent("WelcomeBonus", function(amount)
+        showNotification(
+            "🎉 مرحباً بك في Arab City!",
+            "حصلت على مكافأة ترحيبية: $" .. tostring(amount),
+            COLORS.Gold,
+            6
+        )
+    end)
+
+    -- Badge awarded notification
+    RemoteManager:OnClientEvent("BadgeAwarded", function(data)
+        showNotification(
+            "🏆 إنجاز جديد!",
+            data.nameAr .. " - " .. data.description,
+            COLORS.Gold,
+            5
+        )
+    end)
+
+    -- Building action notifications
+    RemoteManager:OnClientEvent("BuildingAction", function(data)
+        if data.type == "notification" then
+            showNotification(data.title, data.message, COLORS.Accent, 4)
+        elseif data.type == "bank_info" then
+            showNotification(
+                "🏦 البنك المركزي",
+                "رصيدك: $" .. tostring(data.balance) .. " | إجمالي: $" .. tostring(data.totalEarned),
+                COLORS.Gold,
+                5
+            )
+        elseif data.type == "job_offer" then
+            showNotification(
+                "💼 " .. data.jobName,
+                data.description .. " - الراتب: $" .. tostring(data.salary),
+                COLORS.Accent,
+                5
+            )
+        elseif data.type == "property_info" then
+            local msg = data.nameAr .. "\nالسعر: $" .. tostring(data.price) .. " | غرف: " .. tostring(data.rooms)
+            if data.ownedByPlayer then
+                msg = msg .. "\n(ملكك)"
+            elseif data.owned then
+                msg = msg .. "\n(مباع)"
+            end
+            showNotification("🏠 عقار", msg, COLORS.Gold, 5)
+        elseif data.type == "open_panel" then
+            local panel = player.PlayerGui:FindFirstChild(data.panel)
+            if panel then
+                panel.Enabled = true
+            end
+        end
+    end)
+
+    -- Admin status notification
+    RemoteManager:OnClientEvent("AdminStatus", function(isAdmin)
+        if isAdmin then
+            showNotification("🛡️ أدمن", "تم تفعيل صلاحيات الأدمن!", COLORS.Gold, 5)
+        end
+    end)
+
+    return gui, showNotification
+end
+
+-- ═══════════════════════════════════════════════
 -- INITIALIZE ALL PANELS
 -- ═══════════════════════════════════════════════
 local codesGui = buildCodesPanel()
@@ -4743,6 +6718,16 @@ inventoryGui.Parent = playerGui
 
 local missionsGui = buildMissionsPanel()
 missionsGui.Parent = playerGui
+
+local adminGui = buildAdminPanel()
+adminGui.Enabled = false
+adminGui.Parent = playerGui
+
+local chatGui = buildChatPanel()
+chatGui.Parent = playerGui
+
+local notifGui = buildNotificationSystem()
+notifGui.Parent = playerGui
 
 -- Listen for mission progress updates
 RemoteManager:OnClientEvent("MissionProgress", function(missionId, current, target)
@@ -4779,20 +6764,29 @@ RemoteManager:OnClientEvent("MissionProgress", function(missionId, current, targ
     end
 end)
 
+-- Check admin status and enable admin panel button
+task.spawn(function()
+    task.wait(3)
+    local isAdmin = RemoteManager:InvokeServer("IsAdmin")
+    if isAdmin then
+        adminGui.Enabled = false -- Start hidden, toggle from HUD
+    end
+end)
+
 return GUIModule
 ]]></string>
       </Properties>
     </Item>
   </Item>
-  <Item class="StarterPlayer" referent="27">
+  <Item class="StarterPlayer" referent="32">
     <Properties>
       <string name="Name">StarterPlayer</string>
     </Properties>
-    <Item class="StarterCharacterScripts" referent="28">
+    <Item class="StarterCharacterScripts" referent="33">
       <Properties>
         <string name="Name">StarterCharacterScripts</string>
       </Properties>
-      <Item class="LocalScript" referent="29">
+      <Item class="LocalScript" referent="34">
         <Properties>
           <string name="Name">ArabCity_Character</string>
           <string name="Source"><![CDATA[--[[
@@ -4874,11 +6868,11 @@ end)
         </Properties>
       </Item>
     </Item>
-    <Item class="StarterPlayerScripts" referent="30">
+    <Item class="StarterPlayerScripts" referent="35">
       <Properties>
         <string name="Name">StarterPlayerScripts</string>
       </Properties>
-      <Item class="LocalScript" referent="31">
+      <Item class="LocalScript" referent="36">
         <Properties>
           <string name="Name">ArabCity_Client</string>
           <string name="Source"><![CDATA[--[[
@@ -4940,22 +6934,27 @@ HUDController:RegisterPanelCallback(function(action: string)
     elseif action == "codes" then
         local panel = player.PlayerGui:FindFirstChild("CodesPanel")
         if panel then
-            panel.Visible = not panel.Visible
+            panel.Enabled = not panel.Enabled
         end
     elseif action == "shop" then
         local panel = player.PlayerGui:FindFirstChild("ShopPanel")
         if panel then
-            panel.Visible = not panel.Visible
+            panel.Enabled = not panel.Enabled
         end
     elseif action == "inventory" then
         local panel = player.PlayerGui:FindFirstChild("InventoryPanel")
         if panel then
-            panel.Visible = not panel.Visible
+            panel.Enabled = not panel.Enabled
         end
     elseif action == "missions" then
         local panel = player.PlayerGui:FindFirstChild("MissionsPanel")
         if panel then
-            panel.Visible = not panel.Visible
+            panel.Enabled = not panel.Enabled
+        end
+    elseif action == "admin" then
+        local panel = player.PlayerGui:FindFirstChild("AdminPanel")
+        if panel then
+            panel.Enabled = not panel.Enabled
         end
     end
 end)
@@ -4977,11 +6976,11 @@ end)
 print("[ArabCity Client] Client fully initialized!")
 ]]></string>
         </Properties>
-        <Item class="Folder" referent="32">
+        <Item class="Folder" referent="37">
           <Properties>
             <string name="Name">Controllers</string>
           </Properties>
-          <Item class="ModuleScript" referent="33">
+          <Item class="ModuleScript" referent="38">
             <Properties>
               <string name="Name">CameraSystem</string>
               <string name="Source"><![CDATA[--[[
@@ -5262,7 +7261,7 @@ return CameraSystem
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="34">
+          <Item class="ModuleScript" referent="39">
             <Properties>
               <string name="Name">HUDController</string>
               <string name="Source"><![CDATA[--[[
@@ -5366,6 +7365,7 @@ function HUDController:_buildHUD(): ScreenGui
         { name = "Phone",     icon = "📱", labelAr = "الهاتف",   order = 4, action = "phone" },
         { name = "Map",       icon = "🗺️", labelAr = "الخريطة",  order = 5, action = "map" },
         { name = "Missions",  icon = "📋", labelAr = "المهمات",  order = 6, action = "missions" },
+        { name = "Admin",     icon = "🛡️", labelAr = "إدارة",    order = 7, action = "admin", adminOnly = true },
     }
 
     self._topButtons = {}
@@ -5373,8 +7373,18 @@ function HUDController:_buildHUD(): ScreenGui
         local btn = self:_createTopButton(btnDef)
         btn.LayoutOrder = btnDef.order
         btn.Parent = topBtnContainer
+        if btnDef.adminOnly then
+            btn.Visible = false
+        end
         self._topButtons[btnDef.action] = btn
     end
+
+    -- Listen for admin status to show admin button
+    RemoteManager:OnClientEvent("AdminStatus", function(isAdmin)
+        if self._topButtons["admin"] then
+            self._topButtons["admin"].Visible = isAdmin
+        end
+    end)
 
     -- ═══════════════════════════════════
     -- BOTTOM BAR
@@ -5697,7 +7707,7 @@ return HUDController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="35">
+          <Item class="ModuleScript" referent="40">
             <Properties>
               <string name="Name">LoadingScreen</string>
               <string name="Source"><![CDATA[--[[
@@ -6424,7 +8434,7 @@ return LoadingScreen
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="36">
+          <Item class="ModuleScript" referent="41">
             <Properties>
               <string name="Name">MapController</string>
               <string name="Source"><![CDATA[--[[
@@ -6751,7 +8761,7 @@ return MapController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="37">
+          <Item class="ModuleScript" referent="42">
             <Properties>
               <string name="Name">PhoneController</string>
               <string name="Source"><![CDATA[--[[
@@ -7461,7 +9471,7 @@ return PhoneController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="38">
+          <Item class="ModuleScript" referent="43">
             <Properties>
               <string name="Name">PlaneEntry</string>
               <string name="Source"><![CDATA[--[[
@@ -8031,7 +10041,7 @@ return PlaneEntry
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="39">
+          <Item class="ModuleScript" referent="44">
             <Properties>
               <string name="Name">RankEffects</string>
               <string name="Source"><![CDATA[--[[
@@ -8273,7 +10283,7 @@ return RankEffects
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="40">
+          <Item class="ModuleScript" referent="45">
             <Properties>
               <string name="Name">SocialNetworkUI</string>
               <string name="Source"><![CDATA[--[[
@@ -8982,7 +10992,7 @@ return SocialNetworkUI
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="41">
+          <Item class="ModuleScript" referent="46">
             <Properties>
               <string name="Name">VehicleController</string>
               <string name="Source"><![CDATA[--[[

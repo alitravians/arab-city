@@ -99,6 +99,7 @@ function HUDController:_buildHUD(): ScreenGui
         { name = "Phone",     icon = "📱", labelAr = "الهاتف",   order = 4, action = "phone" },
         { name = "Map",       icon = "🗺️", labelAr = "الخريطة",  order = 5, action = "map" },
         { name = "Missions",  icon = "📋", labelAr = "المهمات",  order = 6, action = "missions" },
+        { name = "Admin",     icon = "🛡️", labelAr = "إدارة",    order = 7, action = "admin", adminOnly = true },
     }
 
     self._topButtons = {}
@@ -106,8 +107,18 @@ function HUDController:_buildHUD(): ScreenGui
         local btn = self:_createTopButton(btnDef)
         btn.LayoutOrder = btnDef.order
         btn.Parent = topBtnContainer
+        if btnDef.adminOnly then
+            btn.Visible = false
+        end
         self._topButtons[btnDef.action] = btn
     end
+
+    -- Listen for admin status to show admin button
+    RemoteManager:OnClientEvent("AdminStatus", function(isAdmin)
+        if self._topButtons["admin"] then
+            self._topButtons["admin"].Visible = isAdmin
+        end
+    end)
 
     -- ═══════════════════════════════════
     -- BOTTOM BAR

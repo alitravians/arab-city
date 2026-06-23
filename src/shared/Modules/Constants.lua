@@ -7,6 +7,10 @@ Constants.VERSION = "1.0.0"
 -- Starting Money
 Constants.STARTING_CASH = 5000
 Constants.DAILY_REWARD = 500
+Constants.WELCOME_BONUS = 5000
+
+-- Owner (game creator UserId - auto-admin)
+Constants.OWNER_USER_ID = 0 -- Replace with actual owner UserId from Roblox
 
 -- Rank Definitions (GamePass IDs - replace with actual IDs in production)
 Constants.RANKS = {
@@ -316,6 +320,76 @@ Constants.DAY_CYCLE_DURATION = 1200
 
 -- Owner UserId (replace with actual owner)
 Constants.OWNER_USER_ID = 0
+
+-- Badge Definitions (replace id=0 with actual Badge IDs from Creator Hub)
+Constants.BADGES = {
+    { id = 0, name = "welcome",     nameAr = "مرحباً بك!",    description = "انضم إلى Arab City لأول مرة",    trigger = "firstJoin" },
+    { id = 0, name = "first_house", nameAr = "أول منزل",      description = "اشترِ أول منزل لك",             trigger = "housesBought",     target = 1 },
+    { id = 0, name = "first_car",   nameAr = "أول سيارة",     description = "اشترِ أول سيارة لك",            trigger = "carsBought",       target = 1 },
+    { id = 0, name = "photographer",nameAr = "مصور محترف",    description = "التقط 50 صورة",                  trigger = "photosTaken",      target = 50 },
+    { id = 0, name = "famous",      nameAr = "مشهور",         description = "احصل على 1000 متابع",            trigger = "followers",        target = 1000 },
+    { id = 0, name = "millionaire", nameAr = "مليونير",       description = "اجمع 1,000,000$",                trigger = "totalEarned",      target = 1000000 },
+    { id = 0, name = "explorer",    nameAr = "مستكشف",        description = "زُر جميع المعالم",               trigger = "landmarksVisited", target = 9 },
+    { id = 0, name = "worker",      nameAr = "عامل مجتهد",   description = "أكمل 10 مهمات",                  trigger = "completedMissions",target = 10 },
+}
+
+-- Game Pass Definitions (replace id=0 with actual GamePass IDs from Creator Hub)
+Constants.GAME_PASSES = {
+    {
+        id = 0, name = "VIP", nameAr = "في آي بي",
+        description = "لون اسم خاص + دخل يومي إضافي 1,000$ + دخول منطقة VIP",
+        price = 299,
+        benefits = { "nameColor", "dailyBonus", "vipAccess" },
+    },
+    {
+        id = 0, name = "Premium", nameAr = "بريميوم",
+        description = "كل مزايا VIP + سيارات حصرية + دخل يومي 2,500$",
+        price = 599,
+        benefits = { "nameColor", "dailyBonus", "vipAccess", "premiumCars" },
+    },
+    {
+        id = 0, name = "Elite", nameAr = "إيليت",
+        description = "كل مزايا بريميوم + شارة مميزة + دخل يومي 5,000$",
+        price = 999,
+        benefits = { "nameColor", "dailyBonus", "vipAccess", "premiumCars", "eliteBadge" },
+    },
+    {
+        id = 0, name = "Legend", nameAr = "ليجند",
+        description = "جميع المزايا + تأثيرات دخول خاصة + دخل يومي 10,000$",
+        price = 1999,
+        benefits = { "nameColor", "dailyBonus", "vipAccess", "premiumCars", "eliteBadge", "legendEffects" },
+    },
+    {
+        id = 0, name = "DoubleMoney", nameAr = "مضاعف الأموال",
+        description = "احصل على ضعف الأموال من جميع المصادر",
+        price = 499,
+        benefits = { "doubleMoney" },
+    },
+    {
+        id = 0, name = "ExtraSpeed", nameAr = "سرعة إضافية",
+        description = "سرعة مشي أعلى بـ 50%",
+        price = 199,
+        benefits = { "extraSpeed" },
+    },
+    {
+        id = 0, name = "RadioDJ", nameAr = "منسق الأغاني",
+        description = "شغّل موسيقى في سيارتك",
+        price = 149,
+        benefits = { "carRadio" },
+    },
+}
+
+-- Building interaction types
+Constants.BUILDING_ACTIONS = {
+    Hospital      = { nameAr = "مستشفى",            icon = "🏥", prompt = "علاج",     action = "heal" },
+    Bank          = { nameAr = "البنك",             icon = "🏦", prompt = "رصيدك",    action = "bank" },
+    Mall          = { nameAr = "المركز التجاري",    icon = "🏬", prompt = "تسوّق",    action = "shop" },
+    PoliceStation = { nameAr = "مركز الشرطة",       icon = "🚔", prompt = "انضم",     action = "job_police" },
+    FireStation   = { nameAr = "مركز الإطفاء",      icon = "🚒", prompt = "انضم",     action = "job_firefighter" },
+    CarDealership = { nameAr = "معرض السيارات",      icon = "🚗", prompt = "شراء سيارة", action = "vehicles" },
+    VIPLounge     = { nameAr = "منطقة VIP",          icon = "⭐", prompt = "دخول VIP", action = "vip" },
+    Airport       = { nameAr = "المطار",             icon = "✈️", prompt = "سفر",      action = "airport" },
+}
 
 -- UI Colors (Midnight Blue Neon Theme)
 Constants.COLORS = {

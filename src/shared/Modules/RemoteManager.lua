@@ -71,6 +71,25 @@ local REMOTE_EVENTS = {
     "ComputerInteract",
     -- Palace
     "PalaceAccess",
+    -- Buildings
+    "BuildingInteract",
+    "BuildingAction",
+    -- Badges
+    "BadgeAwarded",
+    -- Game Passes
+    "GamePassPrompt",
+    "GamePassOwned",
+    -- Welcome
+    "WelcomeBonus",
+    -- Admin
+    "AdminAction",
+    "AdminResponse",
+    "AdminStatus",
+    -- Chat
+    "ChatSendPublic",
+    "ChatSendPrivate",
+    "ChatPublicMessage",
+    "ChatPrivateMessage",
 }
 
 local REMOTE_FUNCTIONS = {
@@ -87,6 +106,13 @@ local REMOTE_FUNCTIONS = {
     "GetMessages",
     "GetPhotos",
     "GetPlayerRank",
+    "GetOwnedGamePasses",
+    "GetInventory",
+    "IsAdmin",
+    "GetPlayerList",
+    "GetChatHistory",
+    "GetPrivateChat",
+    "GetOnlinePlayers",
 }
 
 function RemoteManager:_getOrCreateFolder(): Folder

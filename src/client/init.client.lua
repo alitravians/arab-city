@@ -57,22 +57,27 @@ HUDController:RegisterPanelCallback(function(action: string)
     elseif action == "codes" then
         local panel = player.PlayerGui:FindFirstChild("CodesPanel")
         if panel then
-            panel.Visible = not panel.Visible
+            panel.Enabled = not panel.Enabled
         end
     elseif action == "shop" then
         local panel = player.PlayerGui:FindFirstChild("ShopPanel")
         if panel then
-            panel.Visible = not panel.Visible
+            panel.Enabled = not panel.Enabled
         end
     elseif action == "inventory" then
         local panel = player.PlayerGui:FindFirstChild("InventoryPanel")
         if panel then
-            panel.Visible = not panel.Visible
+            panel.Enabled = not panel.Enabled
         end
     elseif action == "missions" then
         local panel = player.PlayerGui:FindFirstChild("MissionsPanel")
         if panel then
-            panel.Visible = not panel.Visible
+            panel.Enabled = not panel.Enabled
+        end
+    elseif action == "admin" then
+        local panel = player.PlayerGui:FindFirstChild("AdminPanel")
+        if panel then
+            panel.Enabled = not panel.Enabled
         end
     end
 end)

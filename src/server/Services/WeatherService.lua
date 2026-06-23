@@ -7,7 +7,7 @@ local RemoteManager = Shared.RemoteManager
 
 local WeatherService = {}
 WeatherService._currentWeather = "Clear"
-WeatherService._timeOfDay = 21 -- hours (0-24), start at 9PM for Midnight Blue Neon theme
+WeatherService._timeOfDay = 9 -- hours (0-24), start at 9AM for morning theme
 
 function WeatherService:Init()
     self:_setupLighting()

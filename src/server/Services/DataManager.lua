@@ -102,6 +102,18 @@ function DataManager:Init()
     RemoteManager:SetServerCallback("GetPlayerData", function(player)
         return self:GetData(player)
     end)
+
+    RemoteManager:SetServerCallback("GetInventory", function(player)
+        local data = self:GetData(player)
+        if not data then
+            return { vehicles = {}, properties = {}, cameras = {} }
+        end
+        return {
+            vehicles = data.ownedVehicles or {},
+            properties = data.ownedProperties or {},
+            cameras = { data.cameraType or "Beginner" },
+        }
+    end)
 end
 
 function DataManager:_loadPlayerData(player: Player)
@@ -109,12 +121,15 @@ function DataManager:_loadPlayerData(player: Player)
         return self._dataStore:GetAsync("Player_" .. player.UserId)
     end)
 
+    local isNewPlayer = false
+
     if success and data then
         -- Merge with defaults for any missing keys
         local merged = self:_mergeDefaults(data)
         merged.lastLogin = DateTime.now().UnixTimestamp
         if merged.joinDate == 0 then
             merged.joinDate = DateTime.now().UnixTimestamp
+            isNewPlayer = true
         end
         self._playerData[player.UserId] = merged
     else
@@ -125,9 +140,20 @@ function DataManager:_loadPlayerData(player: Player)
         fresh.joinDate = DateTime.now().UnixTimestamp
         fresh.lastLogin = DateTime.now().UnixTimestamp
         self._playerData[player.UserId] = fresh
+        isNewPlayer = true
     end
 
     self._lastSaveTime[player.UserId] = os.clock()
+
+    -- Welcome bonus for new players
+    if isNewPlayer then
+        local playerData = self._playerData[player.UserId]
+        playerData.cash = Constants.STARTING_CASH + Constants.WELCOME_BONUS
+        playerData.totalEarned = Constants.WELCOME_BONUS
+        task.defer(function()
+            RemoteManager:FireClient("WelcomeBonus", player, Constants.WELCOME_BONUS)
+        end)
+    end
 
     -- Notify client
     RemoteManager:FireClient("PlayerDataLoaded", player, self._playerData[player.UserId])

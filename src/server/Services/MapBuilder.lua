@@ -167,6 +167,16 @@ local function makePropertyMarker(parent, propId, nameAr, price, rooms, area, po
     cfg.Parent = marker
 
     addBillboard(marker, "🏠 " .. nameAr .. "\n💰 " .. tostring(price) .. "$", COL.Gold, Vector3.new(0, 4, 0))
+
+    -- Interaction prompt for buying
+    local prompt = Instance.new("ProximityPrompt")
+    prompt.ActionText = "شراء"
+    prompt.ObjectText = nameAr
+    prompt.MaxActivationDistance = 12
+    prompt.HoldDuration = 0.5
+    prompt.RequiresLineOfSight = false
+    prompt.Parent = marker
+
     return marker
 end
 
@@ -174,7 +184,20 @@ end
 -- Building Generators
 ----------------------------------------------------------------------------
 
-local function makeBuilding(parent, name, cx, cz, w, d, h, wallColor, roofColor, windowColor, labelText, labelColor)
+local function addProximityPrompt(parent, buildingType, actionText)
+    local prompt = Instance.new("ProximityPrompt")
+    prompt.ActionText = actionText or "دخول"
+    prompt.ObjectText = buildingType or ""
+    prompt.MaxActivationDistance = 10
+    prompt.HoldDuration = 0.3
+    prompt.RequiresLineOfSight = false
+    prompt.Parent = parent
+    CollectionService:AddTag(parent, "InteractiveBuilding")
+    parent:SetAttribute("BuildingType", buildingType)
+    return prompt
+end
+
+local function makeBuilding(parent, name, cx, cz, w, d, h, wallColor, roofColor, windowColor, labelText, labelColor, buildingType)
     local model = makeModel(parent, name)
     wallColor = wallColor or COL.WallLight
     roofColor = roofColor or COL.Roof
@@ -206,8 +229,11 @@ local function makeBuilding(parent, name, cx, cz, w, d, h, wallColor, roofColor,
         end
     end
 
-    -- Door
-    makePart(model, "Door", Vector3.new(3, 5, 0.3), Vector3.new(cx, 2.5, cz + d / 2 + 0.15), COL.WallDark, MAT.Metal)
+    -- Door with interaction
+    local door = makePart(model, "Door", Vector3.new(3, 5, 0.3), Vector3.new(cx, 2.5, cz + d / 2 + 0.15), COL.WallDark, MAT.Metal)
+    if buildingType then
+        addProximityPrompt(door, buildingType, "دخول")
+    end
 
     -- Label
     if labelText then
@@ -221,7 +247,18 @@ local function makeHouse(parent, name, cx, cz, wallColor)
     local model = makeModel(parent, name)
     wallColor = wallColor or COL.WallLight
 
-    makePart(model, "Body", Vector3.new(14, 6, 12), Vector3.new(cx, 3, cz), wallColor, MAT.Concrete)
+    -- Exterior walls (4 walls with opening for door)
+    makePart(model, "WallFront_L", Vector3.new(4.5, 6, 0.4), Vector3.new(cx - 4.75, 3, cz + 6), wallColor, MAT.Concrete)
+    makePart(model, "WallFront_R", Vector3.new(4.5, 6, 0.4), Vector3.new(cx + 4.75, 3, cz + 6), wallColor, MAT.Concrete)
+    makePart(model, "WallFront_Top", Vector3.new(3, 2, 0.4), Vector3.new(cx, 5, cz + 6), wallColor, MAT.Concrete)
+    makePart(model, "WallBack", Vector3.new(14, 6, 0.4), Vector3.new(cx, 3, cz - 6), wallColor, MAT.Concrete)
+    makePart(model, "WallLeft", Vector3.new(0.4, 6, 12), Vector3.new(cx - 7, 3, cz), wallColor, MAT.Concrete)
+    makePart(model, "WallRight", Vector3.new(0.4, 6, 12), Vector3.new(cx + 7, 3, cz), wallColor, MAT.Concrete)
+
+    -- Floor
+    makePart(model, "Floor", Vector3.new(14, 0.4, 12), Vector3.new(cx, 0.2, cz), Color3.fromRGB(160, 140, 120), MAT.Wood)
+
+    -- Roof
     makePart(model, "Roof", Vector3.new(16, 1, 14), Vector3.new(cx, 6.5, cz), COL.Roof, MAT.Concrete)
 
     -- Windows
@@ -229,8 +266,16 @@ local function makeHouse(parent, name, cx, cz, wallColor)
         makePart(model, "Win", Vector3.new(2, 2, 0.2), Vector3.new(cx + offX, 3.5, cz + 6.1), COL.Window, MAT.Glass, { Transparency = 0.3 })
     end
 
-    -- Door
-    makePart(model, "Door", Vector3.new(2.5, 4, 0.3), Vector3.new(cx, 2, cz + 6.15), COL.WallDark, MAT.Wood)
+    -- Door frame (interactive)
+    local door = makePart(model, "Door", Vector3.new(2.5, 4, 0.3), Vector3.new(cx, 2, cz + 6.15), COL.WallDark, MAT.Wood)
+    addProximityPrompt(door, "Property", "معلومات")
+
+    -- Interior furniture
+    makePart(model, "Sofa", Vector3.new(4, 1.5, 1.5), Vector3.new(cx - 4, 0.95, cz - 4), Color3.fromRGB(100, 60, 40), MAT.Smooth)
+    makePart(model, "Table", Vector3.new(2.5, 1, 2.5), Vector3.new(cx - 4, 0.7, cz - 1), Color3.fromRGB(120, 80, 40), MAT.Wood)
+    makePart(model, "Bed", Vector3.new(3, 1, 5), Vector3.new(cx + 4, 0.7, cz - 2), Color3.fromRGB(200, 200, 220), MAT.Smooth)
+    makePart(model, "TV", Vector3.new(3, 2, 0.2), Vector3.new(cx - 4, 2.5, cz - 5.7), Color3.fromRGB(20, 20, 25), MAT.Smooth)
+    makePart(model, "Kitchen", Vector3.new(3, 2, 1.5), Vector3.new(cx + 4, 1.2, cz + 4), Color3.fromRGB(180, 180, 190), MAT.Metal)
 
     -- Yard
     makePart(model, "Yard", Vector3.new(18, 0.2, 8), Vector3.new(cx, 0.1, cz + 12), COL.Grass, MAT.Grass)
@@ -404,7 +449,7 @@ function MapBuilder:_buildCommercialDistrict()
     local district = makeModel(self._cityFolder, "Commercial")
 
     -- Mall (large building east)
-    local mall = makeBuilding(district, "Mall", 120, 0, 60, 40, 25, COL.WallLight, COL.Roof, COL.Window, "🏬 المركز التجاري", COL.NeonCyan)
+    local mall = makeBuilding(district, "Mall", 120, 0, 60, 40, 25, COL.WallLight, COL.Roof, COL.Window, "🏬 المركز التجاري", COL.NeonCyan, "Mall")
 
     -- Glass facade
     makePart(mall, "GlassFront", Vector3.new(58, 20, 0.5), Vector3.new(120, 12, 21), Color3.fromRGB(100, 170, 220), MAT.Glass, { Transparency = 0.4 })
@@ -413,7 +458,7 @@ function MapBuilder:_buildCommercialDistrict()
     makePart(mall, "NeonEntrance", Vector3.new(10, 1, 0.3), Vector3.new(120, 22, 20.5), COL.NeonPink, MAT.Neon)
 
     -- Bank
-    makeBuilding(district, "Bank", 120, 70, 30, 25, 20, Color3.fromRGB(50, 60, 80), COL.Roof, COL.Window, "🏦 البنك المركزي", COL.Gold)
+    makeBuilding(district, "Bank", 120, 70, 30, 25, 20, Color3.fromRGB(50, 60, 80), COL.Roof, COL.Window, "🏦 البنك المركزي", COL.Gold, "Bank")
 
     -- Bank vault door decoration
     makePart(district, "VaultDoor", Vector3.new(4, 6, 0.5), Vector3.new(120, 3, 82.8), COL.Gold, MAT.Metal)
@@ -470,7 +515,7 @@ function MapBuilder:_buildAirport()
     local airport = makeModel(self._cityFolder, "Airport")
 
     -- Terminal building
-    makeBuilding(airport, "Terminal", -200, 0, 80, 30, 15, Color3.fromRGB(200, 210, 220), COL.Roof, COL.Window, "✈️ مطار Arab City الدولي", COL.Gold)
+    makeBuilding(airport, "Terminal", -200, 0, 80, 30, 15, Color3.fromRGB(200, 210, 220), COL.Roof, COL.Window, "✈️ مطار Arab City الدولي", COL.Gold, "Airport")
 
     -- Glass facade
     makePart(airport, "GlassFacade", Vector3.new(78, 12, 0.5), Vector3.new(-200, 8, 16), Color3.fromRGB(120, 180, 230), MAT.Glass, { Transparency = 0.35 })
@@ -506,7 +551,7 @@ end
 function MapBuilder:_buildHospital()
     local hospital = makeModel(self._cityFolder, "Hospital")
 
-    local building = makeBuilding(hospital, "HospitalMain", 80, 150, 40, 30, 22, COL.HospWhite, COL.Roof, COL.Window, "🏥 مستشفى Arab City", Color3.fromRGB(255, 80, 80))
+    local building = makeBuilding(hospital, "HospitalMain", 80, 150, 40, 30, 22, COL.HospWhite, COL.Roof, COL.Window, "🏥 مستشفى Arab City", Color3.fromRGB(255, 80, 80), "Hospital")
 
     -- Red cross on front
     makePart(building, "CrossH", Vector3.new(8, 2, 0.3), Vector3.new(80, 18, 165.2), COL.Red, MAT.Neon)
@@ -522,7 +567,7 @@ end
 function MapBuilder:_buildPoliceStation()
     local station = makeModel(self._cityFolder, "PoliceStation")
 
-    makeBuilding(station, "PoliceMain", 80, 220, 35, 25, 15, COL.PoliceBlue, COL.Roof, COL.Window, "🚔 مركز الشرطة", COL.Blue)
+    makeBuilding(station, "PoliceMain", 80, 220, 35, 25, 15, COL.PoliceBlue, COL.Roof, COL.Window, "🚔 مركز الشرطة", COL.Blue, "PoliceStation")
 
     -- Police sign with neon
     local neonBar = makePart(station, "NeonBar", Vector3.new(20, 1, 0.3), Vector3.new(80, 14, 232.7), COL.Blue, MAT.Neon)
@@ -535,7 +580,7 @@ end
 function MapBuilder:_buildFireStation()
     local station = makeModel(self._cityFolder, "FireStation")
 
-    makeBuilding(station, "FireMain", -80, -120, 35, 25, 12, COL.Red, COL.Roof, COL.Window, "🚒 مركز الإطفاء", COL.Red)
+    makeBuilding(station, "FireMain", -80, -120, 35, 25, 12, COL.Red, COL.Roof, COL.Window, "🚒 مركز الإطفاء", COL.Red, "FireStation")
 
     -- Garage door
     makePart(station, "GarageDoor", Vector3.new(10, 8, 0.5), Vector3.new(-80, 4, -107.3), Color3.fromRGB(180, 40, 40), MAT.Metal)
@@ -564,7 +609,7 @@ function MapBuilder:_buildVIPZone()
     end
 
     -- VIP lounge building
-    makeBuilding(vip, "VIPLounge", -150, 150, 30, 20, 10, Color3.fromRGB(30, 25, 40), COL.Roof, COL.Gold, "⭐ منطقة VIP", COL.Gold)
+    makeBuilding(vip, "VIPLounge", -150, 150, 30, 20, 10, Color3.fromRGB(30, 25, 40), COL.Roof, COL.Gold, "⭐ منطقة VIP", COL.Gold, "VIPLounge")
 
     -- Neon accents
     makePart(vip, "NeonFloor1", Vector3.new(60, 0.3, 2), Vector3.new(-150, 1.2, 130), COL.Gold, MAT.Neon)
@@ -577,7 +622,7 @@ function MapBuilder:_buildCarDealership()
     local dealer = makeModel(self._cityFolder, "CarDealership")
 
     -- Showroom
-    local showroom = makeBuilding(dealer, "Showroom", 180, -120, 50, 35, 12, COL.WallLight, COL.Roof, COL.Window, "🚗 معرض السيارات", COL.NeonCyan)
+    local showroom = makeBuilding(dealer, "Showroom", 180, -120, 50, 35, 12, COL.WallLight, COL.Roof, COL.Window, "🚗 معرض السيارات", COL.NeonCyan, "CarDealership")
 
     -- Glass walls (transparent showroom)
     makePart(showroom, "GlassWall_F", Vector3.new(48, 10, 0.5), Vector3.new(180, 6, -102.3), COL.Window, MAT.Glass, { Transparency = 0.4 })
@@ -667,14 +712,14 @@ function MapBuilder:_buildVehicleSpawns()
 end
 
 function MapBuilder:_setupLighting()
-    -- Midnight blue atmosphere for Neon theme
-    Lighting.ClockTime = 21 -- 9 PM (nighttime for neon feel)
+    -- Morning sunlit atmosphere
+    Lighting.ClockTime = 9 -- 9 AM (morning)
     Lighting.GlobalShadows = true
-    Lighting.Brightness = 0.8
-    Lighting.OutdoorAmbient = Color3.fromRGB(50, 60, 80)
-    Lighting.Ambient = Color3.fromRGB(30, 35, 50)
-    Lighting.FogEnd = 2000
-    Lighting.FogColor = Color3.fromRGB(10, 15, 30)
+    Lighting.Brightness = 2
+    Lighting.OutdoorAmbient = Color3.fromRGB(170, 170, 170)
+    Lighting.Ambient = Color3.fromRGB(100, 105, 115)
+    Lighting.FogEnd = 5000
+    Lighting.FogColor = Color3.fromRGB(180, 200, 230)
 
     -- Atmosphere
     local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
@@ -682,12 +727,12 @@ function MapBuilder:_setupLighting()
         atmosphere = Instance.new("Atmosphere")
         atmosphere.Parent = Lighting
     end
-    atmosphere.Density = 0.35
-    atmosphere.Offset = 0.2
-    atmosphere.Color = Color3.fromRGB(20, 25, 50)
-    atmosphere.Decay = Color3.fromRGB(10, 12, 30)
-    atmosphere.Glare = 0.2
-    atmosphere.Haze = 3
+    atmosphere.Density = 0.25
+    atmosphere.Offset = 0.25
+    atmosphere.Color = Color3.fromRGB(199, 170, 107)
+    atmosphere.Decay = Color3.fromRGB(92, 100, 120)
+    atmosphere.Glare = 0.1
+    atmosphere.Haze = 1.5
 
     -- Sky
     local sky = Lighting:FindFirstChildOfClass("Sky")
@@ -695,30 +740,30 @@ function MapBuilder:_setupLighting()
         sky = Instance.new("Sky")
         sky.Parent = Lighting
     end
-    sky.StarCount = 5000
-    sky.MoonAngularSize = 14
-    sky.SunAngularSize = 8
+    sky.StarCount = 0
+    sky.MoonAngularSize = 8
+    sky.SunAngularSize = 18
 
-    -- Bloom for neon glow
+    -- Bloom for soft glow
     local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
     if not bloom then
         bloom = Instance.new("BloomEffect")
         bloom.Parent = Lighting
     end
-    bloom.Intensity = 0.8
-    bloom.Size = 30
-    bloom.Threshold = 0.7
+    bloom.Intensity = 0.4
+    bloom.Size = 24
+    bloom.Threshold = 0.85
 
-    -- Color correction
+    -- Color correction - warm morning tint
     local cc = Lighting:FindFirstChildOfClass("ColorCorrectionEffect")
     if not cc then
         cc = Instance.new("ColorCorrectionEffect")
         cc.Parent = Lighting
     end
-    cc.Brightness = 0.02
-    cc.Contrast = 0.15
-    cc.Saturation = 0.2
-    cc.TintColor = Color3.fromRGB(220, 230, 255)
+    cc.Brightness = 0.03
+    cc.Contrast = 0.1
+    cc.Saturation = 0.15
+    cc.TintColor = Color3.fromRGB(255, 245, 230)
 
     -- Sun rays
     local sunRays = Lighting:FindFirstChildOfClass("SunRaysEffect")
@@ -726,8 +771,8 @@ function MapBuilder:_setupLighting()
         sunRays = Instance.new("SunRaysEffect")
         sunRays.Parent = Lighting
     end
-    sunRays.Intensity = 0.05
-    sunRays.Spread = 0.5
+    sunRays.Intensity = 0.15
+    sunRays.Spread = 0.8
 end
 
 return MapBuilder

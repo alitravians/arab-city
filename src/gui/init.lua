@@ -610,6 +610,698 @@ local function buildMissionsPanel(): ScreenGui
 end
 
 -- ═══════════════════════════════════════════════
+-- ADMIN PANEL (only visible to admins)
+-- ═══════════════════════════════════════════════
+local function buildAdminPanel(): ScreenGui
+    local gui, _panel, content = createPanel("AdminPanel", "لوحة التحكم", "🛡️")
+
+    -- Player selector dropdown
+    local selectorFrame = Instance.new("Frame")
+    selectorFrame.Size = UDim2.new(1, 0, 0, 40)
+    selectorFrame.BackgroundTransparency = 1
+    selectorFrame.ZIndex = 53
+    selectorFrame.Parent = content
+
+    local playerDropdown = Instance.new("TextButton")
+    playerDropdown.Name = "PlayerDropdown"
+    playerDropdown.Size = UDim2.new(1, 0, 1, 0)
+    playerDropdown.BackgroundColor3 = COLORS.CardBg
+    playerDropdown.BorderSizePixel = 0
+    playerDropdown.Text = "اختر لاعب..."
+    playerDropdown.TextColor3 = COLORS.TextDim
+    playerDropdown.Font = Enum.Font.GothamMedium
+    playerDropdown.TextSize = 14
+    playerDropdown.ZIndex = 54
+    playerDropdown.Parent = selectorFrame
+
+    Instance.new("UICorner", playerDropdown).CornerRadius = UDim.new(0, 10)
+
+    local selectedUserId = nil
+
+    -- Player list (hidden by default)
+    local playerListFrame = Instance.new("ScrollingFrame")
+    playerListFrame.Name = "PlayerList"
+    playerListFrame.Size = UDim2.new(1, 0, 0, 120)
+    playerListFrame.Position = UDim2.new(0, 0, 0, 44)
+    playerListFrame.BackgroundColor3 = COLORS.CardBg
+    playerListFrame.BorderSizePixel = 0
+    playerListFrame.ScrollBarThickness = 3
+    playerListFrame.Visible = false
+    playerListFrame.ZIndex = 60
+    playerListFrame.Parent = content
+
+    Instance.new("UICorner", playerListFrame).CornerRadius = UDim.new(0, 8)
+
+    local playerListLayout = Instance.new("UIListLayout")
+    playerListLayout.Padding = UDim.new(0, 2)
+    playerListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    playerListLayout.Parent = playerListFrame
+
+    local function refreshPlayerList()
+        for _, child in ipairs(playerListFrame:GetChildren()) do
+            if child:IsA("TextButton") then
+                child:Destroy()
+            end
+        end
+        local list = RemoteManager:InvokeServer("GetPlayerList")
+        if not list then
+            return
+        end
+        for i, p in ipairs(list) do
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1, 0, 0, 28)
+            btn.BackgroundColor3 = COLORS.Secondary
+            btn.BackgroundTransparency = 0.5
+            btn.BorderSizePixel = 0
+            btn.Text = p.displayName .. " (@" .. p.name .. ") - $" .. tostring(p.cash)
+            btn.TextColor3 = p.isAdmin and COLORS.Gold or COLORS.Text
+            btn.Font = Enum.Font.GothamMedium
+            btn.TextSize = 12
+            btn.LayoutOrder = i
+            btn.ZIndex = 61
+            btn.Parent = playerListFrame
+
+            btn.MouseButton1Click:Connect(function()
+                selectedUserId = p.userId
+                playerDropdown.Text = p.displayName .. " (@" .. p.name .. ")"
+                playerDropdown.TextColor3 = COLORS.Text
+                playerListFrame.Visible = false
+            end)
+        end
+        playerListFrame.CanvasSize = UDim2.new(0, 0, 0, #list * 30)
+    end
+
+    playerDropdown.MouseButton1Click:Connect(function()
+        playerListFrame.Visible = not playerListFrame.Visible
+        if playerListFrame.Visible then
+            refreshPlayerList()
+        end
+    end)
+
+    -- Action buttons area
+    local actionsY = 170
+
+    -- Result label
+    local resultLabel = Instance.new("TextLabel")
+    resultLabel.Name = "AdminResult"
+    resultLabel.Size = UDim2.new(1, 0, 0, 24)
+    resultLabel.Position = UDim2.new(0, 0, 0, actionsY - 30)
+    resultLabel.BackgroundTransparency = 1
+    resultLabel.Text = ""
+    resultLabel.TextColor3 = COLORS.Success
+    resultLabel.Font = Enum.Font.GothamMedium
+    resultLabel.TextSize = 13
+    resultLabel.ZIndex = 54
+    resultLabel.Parent = content
+
+    RemoteManager:OnClientEvent("AdminResponse", function(data)
+        if data.success then
+            resultLabel.Text = data.message
+            resultLabel.TextColor3 = COLORS.Success
+        else
+            resultLabel.Text = data.message
+            resultLabel.TextColor3 = COLORS.Danger
+        end
+        task.delay(4, function()
+            resultLabel.Text = ""
+        end)
+    end)
+
+    local function makeActionBtn(text, yPos, color, callback)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0.48, 0, 0, 36)
+        btn.Position = yPos
+        btn.BackgroundColor3 = color
+        btn.BackgroundTransparency = 0.2
+        btn.BorderSizePixel = 0
+        btn.Text = text
+        btn.TextColor3 = COLORS.Text
+        btn.Font = Enum.Font.GothamBold
+        btn.TextSize = 13
+        btn.ZIndex = 54
+        btn.Parent = content
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+        btn.MouseButton1Click:Connect(callback)
+        return btn
+    end
+
+    -- Row 1: Give Money + Kick
+    makeActionBtn("💰 إعطاء نقود", UDim2.new(0, 0, 0, actionsY), COLORS.Success, function()
+        if not selectedUserId then
+            resultLabel.Text = "اختر لاعب أولاً"
+            resultLabel.TextColor3 = COLORS.Danger
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "giveMoney", {
+            targetUserId = selectedUserId,
+            amount = 5000,
+        })
+    end)
+
+    makeActionBtn("🚪 طرد", UDim2.new(0.52, 0, 0, actionsY), COLORS.Danger, function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "kick", {
+            targetUserId = selectedUserId,
+            reason = "طرد بواسطة الإدارة",
+        })
+    end)
+
+    -- Row 2: Temp Ban + Perm Ban
+    makeActionBtn("⏱️ حظر مؤقت (30 دقيقة)", UDim2.new(0, 0, 0, actionsY + 44), Color3.fromRGB(200, 120, 0), function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "ban", {
+            targetUserId = selectedUserId,
+            reason = "مخالفة القوانين",
+            duration = 1800, -- 30 minutes
+        })
+    end)
+
+    makeActionBtn("🚫 حظر دائم", UDim2.new(0.52, 0, 0, actionsY + 44), COLORS.Danger, function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "ban", {
+            targetUserId = selectedUserId,
+            reason = "حظر دائم",
+            duration = 0,
+        })
+    end)
+
+    -- Row 3: Promote Job + Unban
+    makeActionBtn("💼 ترقية وظيفة (شرطي)", UDim2.new(0, 0, 0, actionsY + 88), COLORS.Accent, function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "promoteJob", {
+            targetUserId = selectedUserId,
+            jobId = "police",
+        })
+    end)
+
+    makeActionBtn("✅ رفع الحظر", UDim2.new(0.52, 0, 0, actionsY + 88), COLORS.Success, function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "unban", {
+            targetUserId = selectedUserId,
+        })
+    end)
+
+    -- Row 4: Promote Admin + Demote Admin
+    makeActionBtn("👑 ترقية أدمن", UDim2.new(0, 0, 0, actionsY + 132), COLORS.Gold, function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "promoteAdmin", {
+            targetUserId = selectedUserId,
+        })
+    end)
+
+    makeActionBtn("⬇️ إزالة أدمن", UDim2.new(0.52, 0, 0, actionsY + 132), Color3.fromRGB(120, 80, 80), function()
+        if not selectedUserId then
+            return
+        end
+        RemoteManager:FireServer("AdminAction", "demoteAdmin", {
+            targetUserId = selectedUserId,
+        })
+    end)
+
+    return gui
+end
+
+-- ═══════════════════════════════════════════════
+-- CHAT PANEL (public + private messaging)
+-- ═══════════════════════════════════════════════
+local function buildChatPanel(): ScreenGui
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "ChatPanel"
+    gui.DisplayOrder = 85
+    gui.IgnoreGuiInset = true
+    gui.ResetOnSpawn = false
+    gui.Enabled = true
+
+    -- Chat container (bottom-left)
+    local chatFrame = Instance.new("Frame")
+    chatFrame.Name = "ChatFrame"
+    chatFrame.Size = UDim2.new(0.3, 0, 0.4, 0)
+    chatFrame.Position = UDim2.new(0, 10, 1, -10)
+    chatFrame.AnchorPoint = Vector2.new(0, 1)
+    chatFrame.BackgroundColor3 = COLORS.Primary
+    chatFrame.BackgroundTransparency = 0.15
+    chatFrame.BorderSizePixel = 0
+    chatFrame.ZIndex = 40
+    chatFrame.Parent = gui
+
+    Instance.new("UICorner", chatFrame).CornerRadius = UDim.new(0, 12)
+
+    local chatStroke = Instance.new("UIStroke")
+    chatStroke.Color = COLORS.Accent
+    chatStroke.Thickness = 1
+    chatStroke.Transparency = 0.5
+    chatStroke.Parent = chatFrame
+
+    -- Tab bar (public / private)
+    local tabBar = Instance.new("Frame")
+    tabBar.Size = UDim2.new(1, 0, 0, 32)
+    tabBar.BackgroundColor3 = COLORS.Secondary
+    tabBar.BackgroundTransparency = 0.3
+    tabBar.BorderSizePixel = 0
+    tabBar.ZIndex = 41
+    tabBar.Parent = chatFrame
+
+    Instance.new("UICorner", tabBar).CornerRadius = UDim.new(0, 12)
+
+    local tabLayout = Instance.new("UIListLayout")
+    tabLayout.FillDirection = Enum.FillDirection.Horizontal
+    tabLayout.Parent = tabBar
+
+    local activeTab = "public"
+
+    local publicTab = Instance.new("TextButton")
+    publicTab.Size = UDim2.new(0.5, 0, 1, 0)
+    publicTab.BackgroundColor3 = COLORS.Accent
+    publicTab.BackgroundTransparency = 0.3
+    publicTab.BorderSizePixel = 0
+    publicTab.Text = "💬 عام"
+    publicTab.TextColor3 = COLORS.Text
+    publicTab.Font = Enum.Font.GothamBold
+    publicTab.TextSize = 13
+    publicTab.ZIndex = 42
+    publicTab.Parent = tabBar
+
+    local privateTab = Instance.new("TextButton")
+    privateTab.Size = UDim2.new(0.5, 0, 1, 0)
+    privateTab.BackgroundColor3 = COLORS.CardBg
+    privateTab.BackgroundTransparency = 0.5
+    privateTab.BorderSizePixel = 0
+    privateTab.Text = "📩 خاص"
+    privateTab.TextColor3 = COLORS.TextDim
+    privateTab.Font = Enum.Font.GothamBold
+    privateTab.TextSize = 13
+    privateTab.ZIndex = 42
+    privateTab.Parent = tabBar
+
+    -- Messages scroll
+    local messagesScroll = Instance.new("ScrollingFrame")
+    messagesScroll.Name = "Messages"
+    messagesScroll.Size = UDim2.new(1, -8, 1, -74)
+    messagesScroll.Position = UDim2.new(0, 4, 0, 34)
+    messagesScroll.BackgroundTransparency = 1
+    messagesScroll.ScrollBarThickness = 3
+    messagesScroll.ScrollBarImageColor3 = COLORS.Accent
+    messagesScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    messagesScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    messagesScroll.ZIndex = 41
+    messagesScroll.Parent = chatFrame
+
+    local messagesLayout = Instance.new("UIListLayout")
+    messagesLayout.Padding = UDim.new(0, 3)
+    messagesLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    messagesLayout.Parent = messagesScroll
+
+    -- Private player selector (hidden by default)
+    local privateSelector = Instance.new("Frame")
+    privateSelector.Name = "PrivateSelector"
+    privateSelector.Size = UDim2.new(1, -8, 0, 28)
+    privateSelector.Position = UDim2.new(0, 4, 0, 34)
+    privateSelector.BackgroundColor3 = COLORS.CardBg
+    privateSelector.BorderSizePixel = 0
+    privateSelector.Visible = false
+    privateSelector.ZIndex = 43
+    privateSelector.Parent = chatFrame
+
+    Instance.new("UICorner", privateSelector).CornerRadius = UDim.new(0, 6)
+
+    local privateTo = Instance.new("TextButton")
+    privateTo.Size = UDim2.new(1, 0, 1, 0)
+    privateTo.BackgroundTransparency = 1
+    privateTo.Text = "اختر لاعب للمراسلة..."
+    privateTo.TextColor3 = COLORS.TextDim
+    privateTo.Font = Enum.Font.GothamMedium
+    privateTo.TextSize = 12
+    privateTo.ZIndex = 44
+    privateTo.Parent = privateSelector
+
+    local privateTargetId = nil
+
+    -- Input area
+    local inputFrame = Instance.new("Frame")
+    inputFrame.Size = UDim2.new(1, -8, 0, 34)
+    inputFrame.Position = UDim2.new(0, 4, 1, -38)
+    inputFrame.BackgroundTransparency = 1
+    inputFrame.ZIndex = 41
+    inputFrame.Parent = chatFrame
+
+    local chatInput = Instance.new("TextBox")
+    chatInput.Size = UDim2.new(0.78, 0, 1, 0)
+    chatInput.BackgroundColor3 = COLORS.CardBg
+    chatInput.BorderSizePixel = 0
+    chatInput.PlaceholderText = "اكتب رسالتك..."
+    chatInput.PlaceholderColor3 = COLORS.TextDim
+    chatInput.Text = ""
+    chatInput.TextColor3 = COLORS.Text
+    chatInput.Font = Enum.Font.GothamMedium
+    chatInput.TextSize = 13
+    chatInput.ClearTextOnFocus = false
+    chatInput.ZIndex = 42
+    chatInput.Parent = inputFrame
+
+    Instance.new("UICorner", chatInput).CornerRadius = UDim.new(0, 8)
+    local chatPadding = Instance.new("UIPadding")
+    chatPadding.PaddingLeft = UDim.new(0, 8)
+    chatPadding.PaddingRight = UDim.new(0, 8)
+    chatPadding.Parent = chatInput
+
+    local sendBtn = Instance.new("TextButton")
+    sendBtn.Size = UDim2.new(0.2, 0, 1, 0)
+    sendBtn.Position = UDim2.new(0.8, 0, 0, 0)
+    sendBtn.BackgroundColor3 = COLORS.Accent
+    sendBtn.BorderSizePixel = 0
+    sendBtn.Text = "إرسال"
+    sendBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+    sendBtn.Font = Enum.Font.GothamBold
+    sendBtn.TextSize = 13
+    sendBtn.ZIndex = 42
+    sendBtn.Parent = inputFrame
+
+    Instance.new("UICorner", sendBtn).CornerRadius = UDim.new(0, 8)
+
+    local _messageOrder = 0
+
+    local function addMessageBubble(entry)
+        _messageOrder += 1
+        local bubble = Instance.new("TextLabel")
+        bubble.Size = UDim2.new(1, 0, 0, 0)
+        bubble.AutomaticSize = Enum.AutomaticSize.Y
+        bubble.BackgroundTransparency = 1
+        bubble.TextWrapped = true
+        bubble.RichText = true
+        bubble.TextXAlignment = Enum.TextXAlignment.Left
+        bubble.Font = Enum.Font.Gotham
+        bubble.TextSize = 12
+        bubble.ZIndex = 42
+        bubble.LayoutOrder = _messageOrder
+        bubble.Parent = messagesScroll
+
+        local senderColor = "rgb(100,200,255)"
+        if entry.isAdmin then
+            senderColor = "rgb(255,215,0)"
+        elseif entry.isSystem then
+            senderColor = "rgb(200,200,200)"
+        end
+
+        bubble.Text = '<font color="' .. senderColor .. '"><b>' .. (entry.senderDisplay or entry.sender or "???") .. ':</b></font> ' .. (entry.message or "")
+        bubble.TextColor3 = COLORS.Text
+
+        -- Auto-scroll to bottom
+        task.defer(function()
+            messagesScroll.CanvasPosition = Vector2.new(0, messagesScroll.AbsoluteCanvasSize.Y)
+        end)
+    end
+
+    -- Send message
+    local function sendMessage()
+        local msg = chatInput.Text
+        if msg == "" then
+            return
+        end
+        chatInput.Text = ""
+
+        if activeTab == "public" then
+            RemoteManager:FireServer("ChatSendPublic", msg)
+        else
+            if privateTargetId then
+                RemoteManager:FireServer("ChatSendPrivate", privateTargetId, msg)
+            end
+        end
+    end
+
+    sendBtn.MouseButton1Click:Connect(sendMessage)
+    chatInput.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            sendMessage()
+        end
+    end)
+
+    -- Tab switching
+    publicTab.MouseButton1Click:Connect(function()
+        activeTab = "public"
+        publicTab.BackgroundTransparency = 0.3
+        publicTab.TextColor3 = COLORS.Text
+        privateTab.BackgroundTransparency = 0.7
+        privateTab.TextColor3 = COLORS.TextDim
+        privateSelector.Visible = false
+        messagesScroll.Position = UDim2.new(0, 4, 0, 34)
+        messagesScroll.Size = UDim2.new(1, -8, 1, -74)
+
+        -- Clear and reload public history
+        for _, child in ipairs(messagesScroll:GetChildren()) do
+            if child:IsA("TextLabel") then
+                child:Destroy()
+            end
+        end
+        _messageOrder = 0
+        local history = RemoteManager:InvokeServer("GetChatHistory")
+        if history then
+            for _, entry in ipairs(history) do
+                addMessageBubble(entry)
+            end
+        end
+    end)
+
+    privateTab.MouseButton1Click:Connect(function()
+        activeTab = "private"
+        privateTab.BackgroundTransparency = 0.3
+        privateTab.TextColor3 = COLORS.Text
+        publicTab.BackgroundTransparency = 0.7
+        publicTab.TextColor3 = COLORS.TextDim
+        privateSelector.Visible = true
+        messagesScroll.Position = UDim2.new(0, 4, 0, 64)
+        messagesScroll.Size = UDim2.new(1, -8, 1, -104)
+
+        -- Clear messages
+        for _, child in ipairs(messagesScroll:GetChildren()) do
+            if child:IsA("TextLabel") then
+                child:Destroy()
+            end
+        end
+        _messageOrder = 0
+    end)
+
+    -- Private player selector
+    privateTo.MouseButton1Click:Connect(function()
+        local onlinePlayers = RemoteManager:InvokeServer("GetOnlinePlayers")
+        if not onlinePlayers or #onlinePlayers == 0 then
+            privateTo.Text = "لا يوجد لاعبين متصلين"
+            return
+        end
+
+        -- Cycle through players
+        local current = nil
+        for idx, p in ipairs(onlinePlayers) do
+            if p.userId == privateTargetId then
+                current = idx
+                break
+            end
+        end
+
+        local nextIdx = (current or 0) % #onlinePlayers + 1
+        local nextPlayer = onlinePlayers[nextIdx]
+        privateTargetId = nextPlayer.userId
+        privateTo.Text = "إلى: " .. nextPlayer.displayName .. " (@" .. nextPlayer.name .. ")"
+        privateTo.TextColor3 = COLORS.Accent
+
+        -- Load private chat history
+        for _, child in ipairs(messagesScroll:GetChildren()) do
+            if child:IsA("TextLabel") then
+                child:Destroy()
+            end
+        end
+        _messageOrder = 0
+        local history = RemoteManager:InvokeServer("GetPrivateChat", privateTargetId)
+        if history then
+            for _, entry in ipairs(history) do
+                addMessageBubble(entry)
+            end
+        end
+    end)
+
+    -- Listen for public messages
+    RemoteManager:OnClientEvent("ChatPublicMessage", function(entry)
+        if activeTab == "public" then
+            addMessageBubble(entry)
+        end
+    end)
+
+    -- Listen for private messages
+    RemoteManager:OnClientEvent("ChatPrivateMessage", function(entry)
+        if activeTab == "private" then
+            addMessageBubble(entry)
+        end
+    end)
+
+    return gui
+end
+
+-- ═══════════════════════════════════════════════
+-- NOTIFICATION SYSTEM (toasts)
+-- ═══════════════════════════════════════════════
+local function buildNotificationSystem(): ScreenGui
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "NotificationSystem"
+    gui.DisplayOrder = 100
+    gui.IgnoreGuiInset = true
+    gui.ResetOnSpawn = false
+    gui.Enabled = true
+
+    local notifContainer = Instance.new("Frame")
+    notifContainer.Name = "Notifications"
+    notifContainer.Size = UDim2.new(0.3, 0, 0.5, 0)
+    notifContainer.Position = UDim2.new(1, -10, 0, 80)
+    notifContainer.AnchorPoint = Vector2.new(1, 0)
+    notifContainer.BackgroundTransparency = 1
+    notifContainer.ZIndex = 200
+    notifContainer.Parent = gui
+
+    local notifLayout = Instance.new("UIListLayout")
+    notifLayout.Padding = UDim.new(0, 6)
+    notifLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    notifLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+    notifLayout.Parent = notifContainer
+
+    local _notifOrder = 0
+
+    local function showNotification(title, message, color, duration)
+        _notifOrder += 1
+        color = color or COLORS.Accent
+        duration = duration or 4
+
+        local toast = Instance.new("Frame")
+        toast.Size = UDim2.new(1, 0, 0, 60)
+        toast.BackgroundColor3 = COLORS.Primary
+        toast.BorderSizePixel = 0
+        toast.LayoutOrder = _notifOrder
+        toast.ZIndex = 201
+        toast.Parent = notifContainer
+
+        Instance.new("UICorner", toast).CornerRadius = UDim.new(0, 10)
+
+        local toastStroke = Instance.new("UIStroke")
+        toastStroke.Color = color
+        toastStroke.Thickness = 1.5
+        toastStroke.Parent = toast
+
+        local titleLabel = Instance.new("TextLabel")
+        titleLabel.Size = UDim2.new(1, -16, 0, 22)
+        titleLabel.Position = UDim2.new(0, 8, 0, 6)
+        titleLabel.BackgroundTransparency = 1
+        titleLabel.Text = title
+        titleLabel.TextColor3 = color
+        titleLabel.Font = Enum.Font.GothamBold
+        titleLabel.TextSize = 14
+        titleLabel.TextXAlignment = Enum.TextXAlignment.Right
+        titleLabel.ZIndex = 202
+        titleLabel.Parent = toast
+
+        local msgLabel = Instance.new("TextLabel")
+        msgLabel.Size = UDim2.new(1, -16, 0, 22)
+        msgLabel.Position = UDim2.new(0, 8, 0, 30)
+        msgLabel.BackgroundTransparency = 1
+        msgLabel.Text = message
+        msgLabel.TextColor3 = COLORS.Text
+        msgLabel.Font = Enum.Font.GothamMedium
+        msgLabel.TextSize = 12
+        msgLabel.TextXAlignment = Enum.TextXAlignment.Right
+        msgLabel.ZIndex = 202
+        msgLabel.Parent = toast
+
+        -- Slide in
+        toast.Position = UDim2.new(1, 0, 0, 0)
+        TweenService:Create(toast, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0, 0, 0, 0),
+        }):Play()
+
+        -- Auto remove
+        task.delay(duration, function()
+            TweenService:Create(toast, TweenInfo.new(0.3), {
+                Position = UDim2.new(1, 0, 0, 0),
+                BackgroundTransparency = 1,
+            }):Play()
+            task.delay(0.35, function()
+                toast:Destroy()
+            end)
+        end)
+    end
+
+    -- Welcome bonus notification
+    RemoteManager:OnClientEvent("WelcomeBonus", function(amount)
+        showNotification(
+            "🎉 مرحباً بك في Arab City!",
+            "حصلت على مكافأة ترحيبية: $" .. tostring(amount),
+            COLORS.Gold,
+            6
+        )
+    end)
+
+    -- Badge awarded notification
+    RemoteManager:OnClientEvent("BadgeAwarded", function(data)
+        showNotification(
+            "🏆 إنجاز جديد!",
+            data.nameAr .. " - " .. data.description,
+            COLORS.Gold,
+            5
+        )
+    end)
+
+    -- Building action notifications
+    RemoteManager:OnClientEvent("BuildingAction", function(data)
+        if data.type == "notification" then
+            showNotification(data.title, data.message, COLORS.Accent, 4)
+        elseif data.type == "bank_info" then
+            showNotification(
+                "🏦 البنك المركزي",
+                "رصيدك: $" .. tostring(data.balance) .. " | إجمالي: $" .. tostring(data.totalEarned),
+                COLORS.Gold,
+                5
+            )
+        elseif data.type == "job_offer" then
+            showNotification(
+                "💼 " .. data.jobName,
+                data.description .. " - الراتب: $" .. tostring(data.salary),
+                COLORS.Accent,
+                5
+            )
+        elseif data.type == "property_info" then
+            local msg = data.nameAr .. "\nالسعر: $" .. tostring(data.price) .. " | غرف: " .. tostring(data.rooms)
+            if data.ownedByPlayer then
+                msg = msg .. "\n(ملكك)"
+            elseif data.owned then
+                msg = msg .. "\n(مباع)"
+            end
+            showNotification("🏠 عقار", msg, COLORS.Gold, 5)
+        elseif data.type == "open_panel" then
+            local panel = player.PlayerGui:FindFirstChild(data.panel)
+            if panel then
+                panel.Enabled = true
+            end
+        end
+    end)
+
+    -- Admin status notification
+    RemoteManager:OnClientEvent("AdminStatus", function(isAdmin)
+        if isAdmin then
+            showNotification("🛡️ أدمن", "تم تفعيل صلاحيات الأدمن!", COLORS.Gold, 5)
+        end
+    end)
+
+    return gui, showNotification
+end
+
+-- ═══════════════════════════════════════════════
 -- INITIALIZE ALL PANELS
 -- ═══════════════════════════════════════════════
 local codesGui = buildCodesPanel()
@@ -623,6 +1315,16 @@ inventoryGui.Parent = playerGui
 
 local missionsGui = buildMissionsPanel()
 missionsGui.Parent = playerGui
+
+local adminGui = buildAdminPanel()
+adminGui.Enabled = false
+adminGui.Parent = playerGui
+
+local chatGui = buildChatPanel()
+chatGui.Parent = playerGui
+
+local notifGui = buildNotificationSystem()
+notifGui.Parent = playerGui
 
 -- Listen for mission progress updates
 RemoteManager:OnClientEvent("MissionProgress", function(missionId, current, target)
@@ -656,6 +1358,15 @@ RemoteManager:OnClientEvent("MissionProgress", function(missionId, current, targ
             end
             break
         end
+    end
+end)
+
+-- Check admin status and enable admin panel button
+task.spawn(function()
+    task.wait(3)
+    local isAdmin = RemoteManager:InvokeServer("IsAdmin")
+    if isAdmin then
+        adminGui.Enabled = false -- Start hidden, toggle from HUD
     end
 end)
 

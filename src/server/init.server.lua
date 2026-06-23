@@ -31,6 +31,11 @@ local FameService = require(Services.FameService)
 local PalaceService = require(Services.PalaceService)
 local EventService = require(Services.EventService)
 local ComputerService = require(Services.ComputerService)
+local BuildingService = require(Services.BuildingService)
+local BadgeService = require(Services.BadgeService)
+local GamePassService = require(Services.GamePassService)
+local AdminService = require(Services.AdminService)
+local ChatService = require(Services.ChatService)
 
 -- Build the city map first (before services that need workspace objects)
 MapBuilder:Init()
@@ -81,6 +86,21 @@ print("[ArabCity] EventService initialized")
 
 ComputerService:Init(DataManager, SocialNetworkService)
 print("[ArabCity] ComputerService initialized")
+
+BuildingService:Init(DataManager, EconomyService, RankService)
+print("[ArabCity] BuildingService initialized")
+
+BadgeService:Init(DataManager)
+print("[ArabCity] BadgeService initialized")
+
+GamePassService:Init(DataManager)
+print("[ArabCity] GamePassService initialized")
+
+AdminService:Init(DataManager, EconomyService)
+print("[ArabCity] AdminService initialized")
+
+ChatService:Init(DataManager)
+print("[ArabCity] ChatService initialized")
 
 -- Create workspace folders
 local function ensureFolder(parent, name)
