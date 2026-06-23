@@ -1,0 +1,95 @@
+--[[
+    Arab City - Server Entry Point
+    Initializes all server-side services
+]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Wait for shared module
+local Shared = require(ReplicatedStorage:WaitForChild("ArabCity_Shared"))
+local RemoteManager = Shared.RemoteManager
+
+-- Initialize remotes first
+RemoteManager:Init()
+print("[ArabCity] Remote events initialized")
+
+-- Load services
+local Services = script.Services
+local DataManager = require(Services.DataManager)
+local EconomyService = require(Services.EconomyService)
+local RankService = require(Services.RankService)
+local RealEstateService = require(Services.RealEstateService)
+local VehicleService = require(Services.VehicleService)
+local JobService = require(Services.JobService)
+local MissionService = require(Services.MissionService)
+local CodeService = require(Services.CodeService)
+local SocialNetworkService = require(Services.SocialNetworkService)
+local WeatherService = require(Services.WeatherService)
+local AchievementService = require(Services.AchievementService)
+local FameService = require(Services.FameService)
+local PalaceService = require(Services.PalaceService)
+local EventService = require(Services.EventService)
+local ComputerService = require(Services.ComputerService)
+
+-- Initialize services in dependency order
+DataManager:Init()
+print("[ArabCity] DataManager initialized")
+
+EconomyService:Init(DataManager)
+print("[ArabCity] EconomyService initialized")
+
+RankService:Init(DataManager)
+print("[ArabCity] RankService initialized")
+
+RealEstateService:Init(DataManager, EconomyService)
+print("[ArabCity] RealEstateService initialized")
+
+VehicleService:Init(DataManager)
+print("[ArabCity] VehicleService initialized")
+
+JobService:Init(DataManager, EconomyService)
+print("[ArabCity] JobService initialized")
+
+MissionService:Init(DataManager, EconomyService)
+print("[ArabCity] MissionService initialized")
+
+CodeService:Init(DataManager, EconomyService)
+print("[ArabCity] CodeService initialized")
+
+SocialNetworkService:Init(DataManager)
+print("[ArabCity] SocialNetworkService initialized")
+
+WeatherService:Init()
+print("[ArabCity] WeatherService initialized")
+
+AchievementService:Init(DataManager, EconomyService)
+print("[ArabCity] AchievementService initialized")
+
+FameService:Init(DataManager, EconomyService)
+print("[ArabCity] FameService initialized")
+
+PalaceService:Init(RankService)
+print("[ArabCity] PalaceService initialized")
+
+EventService:Init(DataManager, EconomyService)
+print("[ArabCity] EventService initialized")
+
+ComputerService:Init(DataManager, SocialNetworkService)
+print("[ArabCity] ComputerService initialized")
+
+-- Create workspace folders
+local function ensureFolder(parent, name)
+    local folder = parent:FindFirstChild(name)
+    if not folder then
+        folder = Instance.new("Folder")
+        folder.Name = name
+        folder.Parent = parent
+    end
+    return folder
+end
+
+ensureFolder(workspace, "Vehicles")
+ensureFolder(workspace, "Properties")
+ensureFolder(workspace, "SpawnPoints")
+
+print("[ArabCity] Server fully initialized! Version: " .. Shared.Constants.VERSION)
