@@ -36,6 +36,7 @@ CameraSystem:Init()
 VehicleController:Init()
 SocialNetworkUI:Init()
 RankEffects:Init()
+PhoneController:Init()
 print("[ArabCity Client] Background controllers initialized")
 
 -- Phase 3: HUD initializes but stays behind loading screen
@@ -95,9 +96,7 @@ task.spawn(function()
     PlaneEntry:Start()
 end)
 
--- Phase 5: Listen for rank entry effects on other players
-Players.PlayerAdded:Connect(function(otherPlayer)
-    RankEffects:PlayEntryEffect(otherPlayer)
-end)
+-- Rank entry effects are handled via the "RankEffectTrigger" remote event
+-- fired by the server in RankService and received in RankEffects:Init()
 
 print("[ArabCity Client] Client fully initialized!")

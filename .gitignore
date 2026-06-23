@@ -2,7 +2,9 @@
 game_backgrounds/
 map_mockups/
 map_mockups_v2/
-*.py
+game_backgrounds.py
+map_concepts.py
+map_concepts_v2.py
 
 # OS
 .DS_Store

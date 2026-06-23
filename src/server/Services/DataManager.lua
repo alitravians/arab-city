@@ -117,7 +117,7 @@ function DataManager:_savePlayerData(player: Player)
         return
     end
 
-    data.playTime += 1 -- increment for approximate tracking
+    data.playTime += DATA_SAVE_INTERVAL
 
     local success, err = pcall(function()
         self._dataStore:SetAsync("Player_" .. player.UserId, data)

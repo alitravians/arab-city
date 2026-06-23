@@ -191,6 +191,7 @@ function PhoneController:_buildPhoneUI(): ScreenGui
 
     -- Update clock
     task.spawn(function()
+        task.wait(1)
         while gui.Parent do
             local now = os.date("*t")
             if self._timeLabel then

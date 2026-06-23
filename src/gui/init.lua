@@ -213,19 +213,13 @@ local function buildCodesPanel(): ScreenGui
     resultLabel.ZIndex = 54
     resultLabel.Parent = content
 
-    -- Redeem action
-    redeemBtn.MouseButton1Click:Connect(function()
-        local code = codeInput.Text
-        if code == "" then
-            return
-        end
-        redeemBtn.Text = "..."
-        local result = RemoteManager:InvokeServer("RedeemCode", code)
-        if result and result.success then
-            resultLabel.Text = "تم استخدام الكود بنجاح! " .. (result.rewardText or "")
+    -- Listen for code redemption results
+    RemoteManager:OnClientEvent("CodeResult", function(success, message)
+        if success then
+            resultLabel.Text = "تم استخدام الكود بنجاح! " .. (message or "")
             resultLabel.TextColor3 = COLORS.Success
         else
-            resultLabel.Text = result and result.message or "كود غير صالح"
+            resultLabel.Text = message or "كود غير صالح"
             resultLabel.TextColor3 = COLORS.Danger
         end
         redeemBtn.Text = "استخدم"
@@ -233,6 +227,16 @@ local function buildCodesPanel(): ScreenGui
         task.delay(4, function()
             resultLabel.Text = ""
         end)
+    end)
+
+    -- Redeem action
+    redeemBtn.MouseButton1Click:Connect(function()
+        local code = codeInput.Text
+        if code == "" then
+            return
+        end
+        redeemBtn.Text = "..."
+        RemoteManager:FireServer("RedeemCode", code)
     end)
 
     -- Available codes list area
