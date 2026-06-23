@@ -28,7 +28,7 @@ function JobService:Init(dataManager, economyService)
     end)
 
     Players.PlayerRemoving:Connect(function(player)
-        self._activeJobs[player.UserId] = nil
+        self:LeaveJob(player)
     end)
 
     -- Payment loop

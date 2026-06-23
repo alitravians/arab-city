@@ -57,21 +57,32 @@ function DataManager:Init()
     end)
 
     Players.PlayerRemoving:Connect(function(player)
-        self:_savePlayerData(player)
-        self._playerData[player.UserId] = nil
-        self._lastSaveTime[player.UserId] = nil
+        -- Defer save so other services' PlayerRemoving handlers run first
+        -- (VehicleService, JobService clean up player state before we save)
+        task.defer(function()
+            self:_savePlayerData(player)
+            self._playerData[player.UserId] = nil
+            self._lastSaveTime[player.UserId] = nil
+        end)
     end)
 
     game:BindToClose(function()
         local players = Players:GetPlayers()
+        local remaining = #players
+        if remaining == 0 then
+            return
+        end
         for _, plr in ipairs(players) do
             task.spawn(function()
                 self:_savePlayerData(plr)
+                remaining -= 1
             end)
         end
-        -- Wait for parallel saves (Roblox allows 30s for BindToClose)
-        if #players > 0 then
-            task.wait(5)
+        -- Wait until all saves complete or 25s timeout (Roblox allows 30s)
+        local elapsed = 0
+        while remaining > 0 and elapsed < 25 do
+            task.wait(0.5)
+            elapsed += 0.5
         end
     end)
 

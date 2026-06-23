@@ -10,7 +10,8 @@ function Utils.formatNumber(n: number): string
 end
 
 function Utils.formatCurrency(amount: number): string
-    local formatted = tostring(math.floor(amount))
+    local negative = amount < 0
+    local formatted = tostring(math.floor(math.abs(amount)))
     local result = ""
     local count = 0
     for i = #formatted, 1, -1 do
@@ -20,7 +21,7 @@ function Utils.formatCurrency(amount: number): string
             result = "," .. result
         end
     end
-    return result .. " $"
+    return (negative and "-" or "") .. result .. " $"
 end
 
 function Utils.lerp(a: number, b: number, t: number): number
