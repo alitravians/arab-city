@@ -30,6 +30,11 @@ local RankEffects = require(Controllers.RankEffects)
 LoadingScreen:Show()
 print("[ArabCity Client] Loading screen shown")
 
+-- Initialize GUI panels (ModuleScript under StarterGui, needs require to execute)
+local guiModule = player.PlayerGui:WaitForChild("ArabCity_GUI")
+require(guiModule)
+print("[ArabCity Client] GUI panels created")
+
 -- Phase 2: Initialize background systems while loading
 MapController:Init()
 CameraSystem:Init()
@@ -50,37 +55,24 @@ HUDController:RegisterPanelCallback(function(action: string)
     elseif action == "map" then
         MapController:Toggle()
     elseif action == "codes" then
-        -- Codes panel handled by GUI
-        local gui = player.PlayerGui:FindFirstChild("ArabCity_GUI")
-        if gui then
-            local codesPanel = gui:FindFirstChild("CodesPanel")
-            if codesPanel then
-                codesPanel.Visible = not codesPanel.Visible
-            end
+        local panel = player.PlayerGui:FindFirstChild("CodesPanel")
+        if panel then
+            panel.Visible = not panel.Visible
         end
     elseif action == "shop" then
-        local gui = player.PlayerGui:FindFirstChild("ArabCity_GUI")
-        if gui then
-            local shopPanel = gui:FindFirstChild("ShopPanel")
-            if shopPanel then
-                shopPanel.Visible = not shopPanel.Visible
-            end
+        local panel = player.PlayerGui:FindFirstChild("ShopPanel")
+        if panel then
+            panel.Visible = not panel.Visible
         end
     elseif action == "inventory" then
-        local gui = player.PlayerGui:FindFirstChild("ArabCity_GUI")
-        if gui then
-            local invPanel = gui:FindFirstChild("InventoryPanel")
-            if invPanel then
-                invPanel.Visible = not invPanel.Visible
-            end
+        local panel = player.PlayerGui:FindFirstChild("InventoryPanel")
+        if panel then
+            panel.Visible = not panel.Visible
         end
     elseif action == "missions" then
-        local gui = player.PlayerGui:FindFirstChild("ArabCity_GUI")
-        if gui then
-            local missionsPanel = gui:FindFirstChild("MissionsPanel")
-            if missionsPanel then
-                missionsPanel.Visible = not missionsPanel.Visible
-            end
+        local panel = player.PlayerGui:FindFirstChild("MissionsPanel")
+        if panel then
+            panel.Visible = not panel.Visible
         end
     end
 end)

@@ -15,6 +15,7 @@ print("[ArabCity] Remote events initialized")
 
 -- Load services
 local Services = script.Services
+local MapBuilder = require(Services.MapBuilder)
 local DataManager = require(Services.DataManager)
 local EconomyService = require(Services.EconomyService)
 local RankService = require(Services.RankService)
@@ -30,6 +31,10 @@ local FameService = require(Services.FameService)
 local PalaceService = require(Services.PalaceService)
 local EventService = require(Services.EventService)
 local ComputerService = require(Services.ComputerService)
+
+-- Build the city map first (before services that need workspace objects)
+MapBuilder:Init()
+print("[ArabCity] Map built")
 
 -- Initialize services in dependency order
 DataManager:Init()

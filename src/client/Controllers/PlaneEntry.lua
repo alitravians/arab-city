@@ -531,9 +531,12 @@ function PlaneEntry:_land(_rootPart: BasePart, humanoid: Humanoid)
 
     -- Dismiss jump prompt
     if self._jumpGui then
-        TweenService:Create(self._jumpGui:FindFirstChildWhichIsA("Frame"), TweenInfo.new(0.5), {
-            BackgroundTransparency = 1,
-        }):Play()
+        local frame = self._jumpGui:FindFirstChildWhichIsA("Frame")
+        if frame then
+            TweenService:Create(frame, TweenInfo.new(0.5), {
+                BackgroundTransparency = 1,
+            }):Play()
+        end
         task.delay(0.5, function()
             if self._jumpGui then
                 self._jumpGui:Destroy()

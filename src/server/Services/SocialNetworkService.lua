@@ -98,6 +98,10 @@ function SocialNetworkService:CreatePost(player: Player, content: string, photoI
 end
 
 function SocialNetworkService:LikePost(player: Player, postOwnerId: number, postIndex: number)
+    if type(postOwnerId) ~= "number" or type(postIndex) ~= "number" then
+        return
+    end
+
     local ownerPlayer = Players:GetPlayerByUserId(postOwnerId)
     if not ownerPlayer then
         return
@@ -126,6 +130,9 @@ function SocialNetworkService:LikePost(player: Player, postOwnerId: number, post
 end
 
 function SocialNetworkService:CommentOnPost(player: Player, postOwnerId: number, postIndex: number, comment: string)
+    if type(postOwnerId) ~= "number" or type(postIndex) ~= "number" then
+        return
+    end
     if type(comment) ~= "string" or #comment < 1 or #comment > 200 then
         return
     end

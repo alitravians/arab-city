@@ -285,13 +285,18 @@ function VehicleController:_playEngineSound(seat: VehicleSeat)
 end
 
 function VehicleController:_stopEngineSound()
-    if self._engineSound then
-        TweenService:Create(self._engineSound, TweenInfo.new(0.5), { Volume = 0 }):Play()
+    if self._engineSound and self._engineSound.Parent then
+        local sound = self._engineSound
+        self._engineSound = nil
+        TweenService:Create(sound, TweenInfo.new(0.5), { Volume = 0 }):Play()
         task.delay(0.5, function()
-            if self._engineSound then
-                self._engineSound:Stop()
+            if sound and sound.Parent then
+                sound:Stop()
+                sound:Destroy()
             end
         end)
+    else
+        self._engineSound = nil
     end
 end
 

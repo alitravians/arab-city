@@ -9,6 +9,7 @@ local RemoteManager = Shared.RemoteManager
 
 local DataManager = {}
 DataManager._playerData = {}
+DataManager._lastSaveTime = {}
 DataManager._dataStore = DataStoreService:GetDataStore("ArabCity_PlayerData_v1")
 
 local DATA_SAVE_INTERVAL = 120 -- seconds
@@ -58,6 +59,7 @@ function DataManager:Init()
     Players.PlayerRemoving:Connect(function(player)
         self:_savePlayerData(player)
         self._playerData[player.UserId] = nil
+        self._lastSaveTime[player.UserId] = nil
     end)
 
     game:BindToClose(function()
@@ -107,6 +109,8 @@ function DataManager:_loadPlayerData(player: Player)
         self._playerData[player.UserId] = fresh
     end
 
+    self._lastSaveTime[player.UserId] = os.clock()
+
     -- Notify client
     RemoteManager:FireClient("PlayerDataLoaded", player, self._playerData[player.UserId])
 end
@@ -117,7 +121,11 @@ function DataManager:_savePlayerData(player: Player)
         return
     end
 
-    data.playTime += DATA_SAVE_INTERVAL
+    local now = os.clock()
+    local lastSave = self._lastSaveTime[player.UserId] or now
+    local elapsed = math.floor(now - lastSave)
+    data.playTime += math.max(elapsed, 0)
+    self._lastSaveTime[player.UserId] = now
 
     local success, err = pcall(function()
         self._dataStore:SetAsync("Player_" .. player.UserId, data)

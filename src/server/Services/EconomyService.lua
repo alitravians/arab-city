@@ -120,26 +120,29 @@ function EconomyService:_purchaseVehicle(player: Player, vehicleId: string)
 end
 
 function EconomyService:_purchaseCamera(player: Player, cameraId: string)
-    local cameraData = nil
+    local cameraName = nil
+    local cameraPrice = 0
+    local cameraNameAr = ""
     for name, cam in pairs(Constants.CAMERAS) do
         if cam.id == cameraId then
-            cameraData = cam
-            cameraData._name = name
+            cameraName = name
+            cameraPrice = cam.price
+            cameraNameAr = cam.nameAr
             break
         end
     end
 
-    if not cameraData then
+    if not cameraName then
         return
     end
 
-    if not self:RemoveMoney(player, cameraData.price, "شراء " .. cameraData.nameAr) then
+    if not self:RemoveMoney(player, cameraPrice, "شراء " .. cameraNameAr) then
         RemoteManager:FireClient("CodeResult", player, false, "رصيدك غير كافٍ!")
         return
     end
 
-    DataManager:SetValue(player, "cameraType", cameraData._name)
-    RemoteManager:FireClient("CodeResult", player, true, `تم ترقية الكاميرا إلى {cameraData.nameAr}!`)
+    DataManager:SetValue(player, "cameraType", cameraName)
+    RemoteManager:FireClient("CodeResult", player, true, `تم ترقية الكاميرا إلى {cameraNameAr}!`)
 end
 
 return EconomyService
