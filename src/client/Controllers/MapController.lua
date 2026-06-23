@@ -285,7 +285,7 @@ function MapController:_worldToMap(worldPos: Vector3): UDim2
     local rangeZ = MAP_BOUNDS.maxZ - MAP_BOUNDS.minZ
 
     local normX = math.clamp((worldPos.X - MAP_BOUNDS.minX) / rangeX, 0, 1)
-    local normZ = math.clamp((worldPos.Z - MAP_BOUNDS.minZ) / rangeZ, 0, 1)
+    local normZ = 1 - math.clamp((worldPos.Z - MAP_BOUNDS.minZ) / rangeZ, 0, 1)
 
     return UDim2.new(normX, 0, normZ, 0)
 end
