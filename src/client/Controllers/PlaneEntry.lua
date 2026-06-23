@@ -222,7 +222,7 @@ function PlaneEntry:_flyPlane()
 
             local t = math.clamp(elapsed / duration, 0, 1)
             local pos = start:Lerp(finish, t)
-            self._plane:SetPrimaryPartCFrame(CFrame.new(pos) * CFrame.Angles(0, math.rad(90), 0))
+            self._plane:PivotTo(CFrame.new(pos) * CFrame.Angles(0, math.rad(90), 0))
 
             if t >= 1 then
                 -- Auto-jump if player didn't jump

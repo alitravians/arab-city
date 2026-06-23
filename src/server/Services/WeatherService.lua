@@ -7,7 +7,7 @@ local RemoteManager = Shared.RemoteManager
 
 local WeatherService = {}
 WeatherService._currentWeather = "Clear"
-WeatherService._timeOfDay = 12 -- hours (0-24)
+WeatherService._timeOfDay = 21 -- hours (0-24), start at 9PM for Midnight Blue Neon theme
 
 function WeatherService:Init()
     self:_setupLighting()
@@ -16,50 +16,9 @@ function WeatherService:Init()
 end
 
 function WeatherService:_setupLighting()
+    -- Preserve Midnight Blue Neon theme from MapBuilder
+    -- Only set properties that MapBuilder doesn't handle
     Lighting.GlobalShadows = true
-    Lighting.Brightness = 2
-    Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-
-    -- Atmosphere
-    local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
-    if not atmosphere then
-        atmosphere = Instance.new("Atmosphere")
-        atmosphere.Parent = Lighting
-    end
-    atmosphere.Density = 0.3
-    atmosphere.Offset = 0.25
-    atmosphere.Color = Color3.fromRGB(199, 170, 107) -- sandy warmth
-    atmosphere.Decay = Color3.fromRGB(92, 60, 13)
-    atmosphere.Glare = 0.3
-    atmosphere.Haze = 2
-
-    -- Sky
-    local sky = Lighting:FindFirstChildOfClass("Sky")
-    if not sky then
-        sky = Instance.new("Sky")
-        sky.Parent = Lighting
-    end
-    sky.StarCount = 3000
-
-    -- Bloom
-    local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
-    if not bloom then
-        bloom = Instance.new("BloomEffect")
-        bloom.Parent = Lighting
-    end
-    bloom.Intensity = 0.5
-    bloom.Size = 24
-    bloom.Threshold = 0.8
-
-    -- ColorCorrection
-    local cc = Lighting:FindFirstChildOfClass("ColorCorrectionEffect")
-    if not cc then
-        cc = Instance.new("ColorCorrectionEffect")
-        cc.Parent = Lighting
-    end
-    cc.Brightness = 0.05
-    cc.Contrast = 0.1
-    cc.Saturation = 0.15
 end
 
 function WeatherService:_startDayCycle()
@@ -119,11 +78,12 @@ function WeatherService:_updateLightingForTime()
             atmosphere.Color = Color3.fromRGB(255, 120, 50)
         end
     else
-        -- Night
-        Lighting.Brightness = 0.5
-        Lighting.OutdoorAmbient = Color3.fromRGB(40, 40, 60)
+        -- Night (Midnight Blue Neon theme)
+        Lighting.Brightness = 0.8
+        Lighting.OutdoorAmbient = Color3.fromRGB(20, 25, 50)
         if atmosphere then
-            atmosphere.Color = Color3.fromRGB(20, 20, 50)
+            atmosphere.Color = Color3.fromRGB(10, 15, 40)
+            atmosphere.Decay = Color3.fromRGB(5, 10, 30)
         end
     end
 end

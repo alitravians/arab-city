@@ -63,8 +63,15 @@ function DataManager:Init()
     end)
 
     game:BindToClose(function()
-        for _, player in ipairs(Players:GetPlayers()) do
-            self:_savePlayerData(player)
+        local players = Players:GetPlayers()
+        for _, plr in ipairs(players) do
+            task.spawn(function()
+                self:_savePlayerData(plr)
+            end)
+        end
+        -- Wait for parallel saves (Roblox allows 30s for BindToClose)
+        if #players > 0 then
+            task.wait(5)
         end
     end)
 
