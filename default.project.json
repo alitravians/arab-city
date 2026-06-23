@@ -1,0 +1,43 @@
+{
+  "name": "ArabCity",
+  "tree": {
+    "$className": "DataModel",
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "ArabCity_Server": {
+        "$path": "src/server"
+      }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "ArabCity_Client": {
+          "$path": "src/client"
+        }
+      },
+      "StarterCharacterScripts": {
+        "$className": "StarterCharacterScripts",
+        "ArabCity_Character": {
+          "$path": "src/starter"
+        }
+      }
+    },
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "ArabCity_Shared": {
+        "$path": "src/shared"
+      }
+    },
+
+    "StarterGui": {
+      "$className": "StarterGui",
+      "ArabCity_GUI": {
+        "$path": "src/gui"
+      }
+    }
+  }
+}
