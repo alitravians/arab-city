@@ -320,7 +320,7 @@ function SocialNetworkUI:_createPostCard(post, order: number)
     likeBtn.Parent = statsBar
 
     likeBtn.MouseButton1Click:Connect(function()
-        RemoteManager:FireServer("LikePost", post.authorId, order)
+        RemoteManager:FireServer("LikePost", post.authorId, post.postIndex or order)
     end)
 
     -- Comment count

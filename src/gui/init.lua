@@ -412,7 +412,7 @@ local function buildShopPanel(): ScreenGui
         Instance.new("UICorner", buyBtn).CornerRadius = UDim.new(0, 8)
 
         buyBtn.MouseButton1Click:Connect(function()
-            RemoteManager:FireServer("BuyVehicle", vehicle.id)
+            RemoteManager:FireServer("RequestPurchase", "vehicle", vehicle.id)
         end)
     end
 

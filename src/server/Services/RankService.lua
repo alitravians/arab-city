@@ -26,6 +26,23 @@ function RankService:Init(dataManager)
             self:_onGamePassPurchased(player, gamePassId)
         end
     end)
+
+    -- Register GetPlayerRank callback
+    RemoteManager:SetServerCallback("GetPlayerRank", function(player)
+        local rankName = self:GetPlayerRank(player)
+        if rankName == "None" then
+            return nil
+        end
+        local rankData = Constants.RANKS[rankName]
+        if not rankData then
+            return nil
+        end
+        return {
+            rank = rankName,
+            nameColor = rankData.nameColor,
+            label = rankData.labelAr or rankData.label,
+        }
+    end)
 end
 
 function RankService:_checkPlayerRanks(player: Player)

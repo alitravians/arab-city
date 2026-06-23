@@ -86,6 +86,7 @@ local REMOTE_FUNCTIONS = {
     "GetAvailableCodes",
     "GetMessages",
     "GetPhotos",
+    "GetPlayerRank",
 }
 
 function RemoteManager:_getOrCreateFolder(): Folder

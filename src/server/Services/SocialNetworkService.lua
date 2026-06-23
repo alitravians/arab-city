@@ -66,6 +66,8 @@ function SocialNetworkService:CreatePost(player: Player, content: string, photoI
 
     -- Add to player's posts
     DataManager:AddToTable(player, "posts", post)
+    local playerPosts = DataManager:GetValue(player, "posts") or {}
+    local postIndex = #playerPosts
 
     -- Add to global feed
     table.insert(self._globalFeed, 1, {
@@ -77,6 +79,7 @@ function SocialNetworkService:CreatePost(player: Player, content: string, photoI
         likeCount = 0,
         commentCount = 0,
         views = 0,
+        postIndex = postIndex,
     })
 
     -- Trim global feed
