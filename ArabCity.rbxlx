@@ -1272,7 +1272,7 @@ function DataManager:_savePlayerData(player: Player)
         return
     end
 
-    data.playTime += 1 -- increment for approximate tracking
+    data.playTime += DATA_SAVE_INTERVAL
 
     local success, err = pcall(function()
         self._dataStore:SetAsync("Player_" .. player.UserId, data)
@@ -3571,19 +3571,13 @@ local function buildCodesPanel(): ScreenGui
     resultLabel.ZIndex = 54
     resultLabel.Parent = content
 
-    -- Redeem action
-    redeemBtn.MouseButton1Click:Connect(function()
-        local code = codeInput.Text
-        if code == "" then
-            return
-        end
-        redeemBtn.Text = "..."
-        local result = RemoteManager:InvokeServer("RedeemCode", code)
-        if result and result.success then
-            resultLabel.Text = "تم استخدام الكود بنجاح! " .. (result.rewardText or "")
+    -- Listen for code redemption results
+    RemoteManager:OnClientEvent("CodeResult", function(success, message)
+        if success then
+            resultLabel.Text = "تم استخدام الكود بنجاح! " .. (message or "")
             resultLabel.TextColor3 = COLORS.Success
         else
-            resultLabel.Text = result and result.message or "كود غير صالح"
+            resultLabel.Text = message or "كود غير صالح"
             resultLabel.TextColor3 = COLORS.Danger
         end
         redeemBtn.Text = "استخدم"
@@ -3591,6 +3585,16 @@ local function buildCodesPanel(): ScreenGui
         task.delay(4, function()
             resultLabel.Text = ""
         end)
+    end)
+
+    -- Redeem action
+    redeemBtn.MouseButton1Click:Connect(function()
+        local code = codeInput.Text
+        if code == "" then
+            return
+        end
+        redeemBtn.Text = "..."
+        RemoteManager:FireServer("RedeemCode", code)
     end)
 
     -- Available codes list area
@@ -4153,6 +4157,7 @@ CameraSystem:Init()
 VehicleController:Init()
 SocialNetworkUI:Init()
 RankEffects:Init()
+PhoneController:Init()
 print("[ArabCity Client] Background controllers initialized")
 
 -- Phase 3: HUD initializes but stays behind loading screen
@@ -4212,10 +4217,8 @@ task.spawn(function()
     PlaneEntry:Start()
 end)
 
--- Phase 5: Listen for rank entry effects on other players
-Players.PlayerAdded:Connect(function(otherPlayer)
-    RankEffects:PlayEntryEffect(otherPlayer)
-end)
+-- Rank entry effects are handled via the "RankEffectTrigger" remote event
+-- fired by the server in RankService and received in RankEffects:Init()
 
 print("[ArabCity Client] Client fully initialized!")
 ]]></string>
@@ -6190,6 +6193,7 @@ function PhoneController:_buildPhoneUI(): ScreenGui
 
     -- Update clock
     task.spawn(function()
+        task.wait(1)
         while gui.Parent do
             local now = os.date("*t")
             if self._timeLabel then
