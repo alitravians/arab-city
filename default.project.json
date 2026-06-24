@@ -1,0 +1,145 @@
+{
+  "name": "ArabCity",
+  "tree": {
+    "$className": "DataModel",
+
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": {
+        "Gravity": 196.2
+      },
+      "SpawnLocation": {
+        "$className": "SpawnLocation",
+        "$properties": {
+          "Position": [0, 0.5, -15],
+          "Size": [8, 1, 8],
+          "Anchored": true,
+          "Material": "Neon",
+          "Color": [0, 0.902, 1],
+          "Transparency": 0.5,
+          "CanCollide": false
+        }
+      },
+      "Baseplate": {
+        "$className": "Part",
+        "$properties": {
+          "Size": [512, 10, 512],
+          "Position": [0, -5, 0],
+          "Anchored": true,
+          "Material": "Grass",
+          "Color": [0.137, 0.392, 0.157],
+          "Locked": true
+        }
+      }
+    },
+
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "ClockTime": 9,
+        "GlobalShadows": true,
+        "Brightness": 2,
+        "OutdoorAmbient": [0.667, 0.667, 0.667],
+        "Ambient": [0.392, 0.412, 0.451],
+        "FogEnd": 5000,
+        "FogColor": [0.706, 0.784, 0.902]
+      },
+      "Atmosphere": {
+        "$className": "Atmosphere",
+        "$properties": {
+          "Density": 0.25,
+          "Offset": 0.25,
+          "Color": [0.78, 0.667, 0.42],
+          "Decay": [0.361, 0.392, 0.471],
+          "Glare": 0.1,
+          "Haze": 1.5
+        }
+      },
+      "Sky": {
+        "$className": "Sky",
+        "$properties": {
+          "StarCount": 0,
+          "MoonAngularSize": 8,
+          "SunAngularSize": 18
+        }
+      },
+      "BloomEffect": {
+        "$className": "BloomEffect",
+        "$properties": {
+          "Intensity": 0.4,
+          "Size": 24,
+          "Threshold": 0.85
+        }
+      },
+      "ColorCorrectionEffect": {
+        "$className": "ColorCorrectionEffect",
+        "$properties": {
+          "Brightness": 0.03,
+          "Contrast": 0.1,
+          "Saturation": 0.15,
+          "TintColor": [1, 0.961, 0.902]
+        }
+      },
+      "SunRaysEffect": {
+        "$className": "SunRaysEffect",
+        "$properties": {
+          "Intensity": 0.15,
+          "Spread": 0.8
+        }
+      }
+    },
+
+    "SoundService": {
+      "$className": "SoundService"
+    },
+
+    "Chat": {
+      "$className": "Chat"
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "ArabCity_Server": {
+        "$path": "src/server"
+      }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "ArabCity_Client": {
+          "$path": "src/client"
+        }
+      },
+      "StarterCharacterScripts": {
+        "$className": "StarterCharacterScripts",
+        "ArabCity_Character": {
+          "$path": "src/starter"
+        }
+      }
+    },
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "ArabCity_Shared": {
+        "$path": "src/shared"
+      }
+    },
+
+    "StarterGui": {
+      "$className": "StarterGui",
+      "ArabCity_GUI": {
+        "$path": "src/gui"
+      }
+    },
+
+    "StarterPack": {
+      "$className": "StarterPack"
+    },
+
+    "Teams": {
+      "$className": "Teams"
+    }
+  }
+}
