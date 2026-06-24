@@ -94,7 +94,17 @@
     },
 
     "Chat": {
-      "$className": "Chat"
+      "$className": "Chat",
+      "$properties": {
+        "LoadDefaultChat": false
+      }
+    },
+
+    "TextChatService": {
+      "$className": "TextChatService",
+      "$properties": {
+        "ChatVersion": "LegacyChatService"
+      }
     },
 
     "ServerScriptService": {
