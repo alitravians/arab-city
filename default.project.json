@@ -103,7 +103,19 @@
     "TextChatService": {
       "$className": "TextChatService",
       "$properties": {
-        "ChatVersion": "LegacyChatService"
+        "ChatVersion": "TextChatService"
+      },
+      "ChatWindowConfiguration": {
+        "$className": "ChatWindowConfiguration",
+        "$properties": {
+          "Enabled": false
+        }
+      },
+      "BubbleChatConfiguration": {
+        "$className": "BubbleChatConfiguration",
+        "$properties": {
+          "Enabled": false
+        }
       }
     },
 

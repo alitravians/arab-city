@@ -28,58 +28,93 @@ ChatController._privateMessages = {}
 local COLORS = Constants.COLORS
 local ANIM_DURATION = 0.25
 
+local CHAT_GUI_NAMES = {
+    Chat = true,
+    BubbleChat = true,
+    ExperienceChat = true,
+    RBXchatBubble = true,
+}
+
+local function isChatGui(inst)
+    return inst:IsA("ScreenGui") and CHAT_GUI_NAMES[inst.Name]
+end
+
+local function nukeChatGui(gui)
+    pcall(function()
+        gui.Enabled = false
+    end)
+    pcall(function()
+        gui:Destroy()
+    end)
+end
+
 local function disableDefaultChat()
-    -- Method 1: Disable Chat CoreGui (hides chat window + top bar chat icon)
+    -- 1. CoreGui chat toggle
     pcall(function()
         StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
     end)
 
-    -- Method 2: Disable via SetCore (catches bubble chat + chat window)
+    -- 2. SetCore chat controls
     pcall(function()
         StarterGui:SetCore("ChatActive", false)
     end)
-
-    -- Method 3: Hide ChatWindowConfiguration if TextChatService uses new system
     pcall(function()
-        local chatWindowConfig = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
-        if chatWindowConfig then
-            chatWindowConfig.Enabled = false
+        StarterGui:SetCore("ChatBarDisabled", true)
+    end)
+
+    -- 3. TextChatService configurations
+    pcall(function()
+        local cw = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
+        if cw then
+            cw.Enabled = false
         end
-        local bubbleConfig = TextChatService:FindFirstChildOfClass("BubbleChatConfiguration")
-        if bubbleConfig then
-            bubbleConfig.Enabled = false
+    end)
+    pcall(function()
+        local bc = TextChatService:FindFirstChildOfClass("BubbleChatConfiguration")
+        if bc then
+            bc.Enabled = false
         end
     end)
 
-    -- Method 4: Hide any existing default chat GUI that already loaded in PlayerGui
+    -- 4. Destroy any default chat GUIs in PlayerGui
     pcall(function()
         for _, gui in ipairs(playerGui:GetChildren()) do
-            if gui:IsA("ScreenGui") then
-                local n = gui.Name
-                if n == "Chat" or n == "BubbleChat" or n == "ExperienceChat" then
-                    gui.Enabled = false
-                end
+            if isChatGui(gui) then
+                nukeChatGui(gui)
             end
         end
     end)
 
-    -- Method 5: Also hide the chat bar/input at top of screen via SetCore
+    -- 5. Try to reach CoreGui chat elements
     pcall(function()
-        StarterGui:SetCore("ChatBarDisabled", true)
+        local coreGui = game:GetService("CoreGui")
+        for _, gui in ipairs(coreGui:GetChildren()) do
+            if isChatGui(gui) then
+                nukeChatGui(gui)
+            end
+        end
+    end)
+
+    -- 6. Disable the entire Chat CoreGui type repeatedly
+    pcall(function()
+        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
+    end)
+    pcall(function()
+        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
     end)
 end
 
 function ChatController:Init()
-    -- Immediately disable CoreGui chat
+    -- Immediately disable CoreGui chat before anything else
     pcall(function()
         StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
     end)
 
-    -- Persistent background task: keeps disabling default chat
+    -- Persistent background task: keeps disabling default chat aggressively
     task.spawn(function()
-        -- Wait for SetCore to become available then disable
         local chatActiveOk = false
         local chatBarOk = false
+        -- Phase 1: rapid-fire disabling (15 seconds)
         for _ = 1, 30 do
             if not chatActiveOk then
                 chatActiveOk = pcall(function()
@@ -92,27 +127,46 @@ function ChatController:Init()
                 end)
             end
             disableDefaultChat()
-            if chatActiveOk and chatBarOk then break end
             task.wait(0.5)
         end
-        -- Continue checking periodically for late-loaded chat GUIs
-        for _ = 1, 30 do
+        -- Phase 2: keep monitoring for 2 minutes (chat can load very late)
+        for _ = 1, 60 do
             task.wait(2)
             disableDefaultChat()
         end
     end)
 
-    -- Watch for new chat GUIs being added and disable them immediately
+    -- Watch PlayerGui for any default chat GUIs being added
     playerGui.ChildAdded:Connect(function(child)
-        if child:IsA("ScreenGui") then
-            local n = child.Name
-            if n == "Chat" or n == "BubbleChat" or n == "ExperienceChat" then
-                task.defer(function()
-                    pcall(function()
-                        child.Enabled = false
-                    end)
+        if isChatGui(child) then
+            task.defer(function()
+                nukeChatGui(child)
+            end)
+        end
+    end)
+
+    -- Watch TextChatService for config children being re-enabled
+    TextChatService.ChildAdded:Connect(function(child)
+        if child:IsA("ChatWindowConfiguration") or child:IsA("BubbleChatConfiguration") then
+            task.defer(function()
+                pcall(function()
+                    child.Enabled = false
                 end)
-            end
+            end)
+        end
+    end)
+
+    -- Watch existing ChatWindowConfiguration for property changes
+    task.spawn(function()
+        local cw = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
+        if cw then
+            cw:GetPropertyChangedSignal("Enabled"):Connect(function()
+                if cw.Enabled then
+                    pcall(function()
+                        cw.Enabled = false
+                    end)
+                end
+            end)
         end
     end)
 

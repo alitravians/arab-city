@@ -15,6 +15,11 @@ print("[ArabCity] Remote events initialized")
 
 -- Load services
 local Services = script.Services
+
+-- FIRST: Disable all default chat systems before anything else loads
+local DisableDefaultChat = require(Services.DisableDefaultChat)
+DisableDefaultChat:Init()
+
 local MapBuilder = require(Services.MapBuilder)
 local DataManager = require(Services.DataManager)
 local EconomyService = require(Services.EconomyService)
