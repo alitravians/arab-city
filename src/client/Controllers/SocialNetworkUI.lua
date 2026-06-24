@@ -54,13 +54,19 @@ function SocialNetworkUI:Open(tab: string?)
 end
 
 function SocialNetworkUI:Close()
+    if not self._isOpen then
+        return
+    end
+    self._isOpen = false
+
     TweenService:Create(self._mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
         Position = UDim2.new(1.5, 0, 0.5, 0),
     }):Play()
 
     task.delay(0.3, function()
-        self._isOpen = false
-        self._gui.Enabled = false
+        if not self._isOpen then
+            self._gui.Enabled = false
+        end
     end)
 end
 

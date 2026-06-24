@@ -406,8 +406,9 @@ function PlaneEntry:_deployParachute()
     -- Create parachute visual
     self._parachute = self:_createParachuteVisual(rootPart)
 
-    -- Slow down descent
+    -- Slow down descent and allow horizontal drift
     if self._bodyVelocity then
+        self._bodyVelocity.MaxForce = Vector3.new(0, math.huge, 0)
         TweenService:Create(self._bodyVelocity, TweenInfo.new(0.5), {
             Velocity = Vector3.new(0, -PLANE_CONFIG.parachuteSpeed, 0),
         }):Play()

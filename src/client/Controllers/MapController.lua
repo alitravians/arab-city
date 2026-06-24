@@ -60,14 +60,16 @@ function MapController:Close()
     if not self._isOpen then
         return
     end
+    self._isOpen = false
 
     TweenService:Create(self._mainFrame, TweenInfo.new(0.2), {
         BackgroundTransparency = 1,
     }):Play()
 
     task.delay(0.2, function()
-        self._isOpen = false
-        self._gui.Enabled = false
+        if not self._isOpen then
+            self._gui.Enabled = false
+        end
     end)
 end
 

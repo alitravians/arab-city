@@ -72,15 +72,17 @@ function PhoneController:Close()
     if not self._isOpen then
         return
     end
+    self._isOpen = false
 
     TweenService:Create(self._phoneFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
         Position = UDim2.new(0.5, 0, 1.5, 0),
     }):Play()
 
     task.delay(0.3, function()
-        self._isOpen = false
-        self._gui.Enabled = false
-        self._currentApp = nil
+        if not self._isOpen then
+            self._gui.Enabled = false
+            self._currentApp = nil
+        end
     end)
 end
 
