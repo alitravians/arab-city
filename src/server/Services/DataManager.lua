@@ -10,6 +10,7 @@ local RemoteManager = Shared.RemoteManager
 local DataManager = {}
 DataManager._playerData = {}
 DataManager._lastSaveTime = {}
+DataManager._saving = {} -- per-player lock to prevent concurrent saves
 DataManager._dataStore = DataStoreService:GetDataStore("ArabCity_PlayerData_v1")
 
 local DATA_SAVE_INTERVAL = 120 -- seconds
@@ -166,24 +167,32 @@ function DataManager:_loadPlayerData(player: Player)
 end
 
 function DataManager:_savePlayerData(player: Player)
-    local data = self._playerData[player.UserId]
+    local userId = player.UserId
+    local data = self._playerData[userId]
     if not data then
         return
     end
 
+    if self._saving[userId] then
+        return
+    end
+    self._saving[userId] = true
+
     local now = os.clock()
-    local lastSave = self._lastSaveTime[player.UserId] or now
+    local lastSave = self._lastSaveTime[userId] or now
     local elapsed = math.floor(now - lastSave)
     data.playTime += math.max(elapsed, 0)
-    self._lastSaveTime[player.UserId] = now
+    self._lastSaveTime[userId] = now
 
     local success, err = pcall(function()
-        self._dataStore:SetAsync("Player_" .. player.UserId, data)
+        self._dataStore:SetAsync("Player_" .. userId, data)
     end)
 
     if not success then
         warn(`[DataManager] Failed to save data for {player.Name}: {err}`)
     end
+
+    self._saving[userId] = nil
 end
 
 function DataManager:_isArray(tbl: { [any]: any }): boolean

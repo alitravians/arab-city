@@ -190,14 +190,18 @@ function BuildingService:_trackLandmarkVisit(player: Player, buildingType: strin
         return
     end
 
-    if not data._visitedLandmarks then
-        data._visitedLandmarks = {}
+    if not self._visitedCache then
+        self._visitedCache = {}
+    end
+    local userId = player.UserId
+    if not self._visitedCache[userId] then
+        self._visitedCache[userId] = {}
     end
 
-    if not data._visitedLandmarks[buildingType] then
-        data._visitedLandmarks[buildingType] = true
+    if not self._visitedCache[userId][buildingType] then
+        self._visitedCache[userId][buildingType] = true
         local count = 0
-        for _ in pairs(data._visitedLandmarks) do
+        for _ in pairs(self._visitedCache[userId]) do
             count += 1
         end
         DataManager:SetValue(player, "landmarksVisited", count)

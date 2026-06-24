@@ -698,8 +698,27 @@ local function buildAdminPanel(): ScreenGui
         end
     end)
 
+    -- Money amount input
+    local amountInput = Instance.new("TextBox")
+    amountInput.Name = "AmountInput"
+    amountInput.Size = UDim2.new(0.48, 0, 0, 30)
+    amountInput.Position = UDim2.new(0, 0, 0, 140)
+    amountInput.BackgroundColor3 = COLORS.Secondary
+    amountInput.BackgroundTransparency = 0.3
+    amountInput.BorderSizePixel = 0
+    amountInput.PlaceholderText = "المبلغ (مثال: 5000)"
+    amountInput.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
+    amountInput.Text = ""
+    amountInput.TextColor3 = COLORS.Text
+    amountInput.Font = Enum.Font.GothamMedium
+    amountInput.TextSize = 13
+    amountInput.ZIndex = 54
+    amountInput.ClearTextOnFocus = false
+    amountInput.Parent = content
+    Instance.new("UICorner", amountInput).CornerRadius = UDim.new(0, 8)
+
     -- Action buttons area
-    local actionsY = 170
+    local actionsY = 180
 
     -- Result label
     local resultLabel = Instance.new("TextLabel")
@@ -752,9 +771,15 @@ local function buildAdminPanel(): ScreenGui
             resultLabel.TextColor3 = COLORS.Danger
             return
         end
+        local amount = tonumber(amountInput.Text)
+        if not amount or amount <= 0 then
+            resultLabel.Text = "أدخل مبلغ صحيح!"
+            resultLabel.TextColor3 = COLORS.Danger
+            return
+        end
         RemoteManager:FireServer("AdminAction", "giveMoney", {
             targetUserId = selectedUserId,
-            amount = 5000,
+            amount = amount,
         })
     end)
 

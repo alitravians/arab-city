@@ -200,6 +200,12 @@ function RealEstateService:SellProperty(player: Player, propertyId: string)
 end
 
 function RealEstateService:ListForSale(player: Player, propertyId: string, price: number)
+    if type(price) ~= "number" or price ~= price then -- reject NaN
+        RemoteManager:FireClient("CodeResult", player, false, "سعر غير صالح!")
+        return
+    end
+    price = math.floor(price)
+
     local property = self._properties[propertyId]
     if not property then
         return
@@ -212,6 +218,11 @@ function RealEstateService:ListForSale(player: Player, propertyId: string, price
 
     if price < 1000 then
         RemoteManager:FireClient("CodeResult", player, false, "الحد الأدنى للسعر 1,000$!")
+        return
+    end
+
+    if price > 10000000 then
+        RemoteManager:FireClient("CodeResult", player, false, "الحد الأقصى للسعر 10,000,000$!")
         return
     end
 

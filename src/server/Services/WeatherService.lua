@@ -22,23 +22,20 @@ function WeatherService:_setupLighting()
 end
 
 function WeatherService:_startDayCycle()
+    local cycleDuration = Constants.DAY_CYCLE_DURATION
+    local increment = 24 / cycleDuration -- hours per second
+
     task.spawn(function()
         while true do
-            local cycleDuration = Constants.DAY_CYCLE_DURATION
-            local increment = 24 / cycleDuration -- hours per second
+            task.wait(1)
 
             self._timeOfDay += increment
             if self._timeOfDay >= 24 then
                 self._timeOfDay -= 24
             end
 
-            -- Set clock time
             Lighting.ClockTime = self._timeOfDay
-
-            -- Adjust lighting based on time
             self:_updateLightingForTime()
-
-            task.wait(1)
         end
     end)
 end
