@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
 
 local Shared = require(ReplicatedStorage:WaitForChild("ArabCity_Shared"))
 local Constants = Shared.Constants
@@ -27,6 +28,11 @@ local COLORS = Constants.COLORS
 local ANIM_DURATION = 0.25
 
 function ChatController:Init()
+    -- Disable Roblox default chat UI (we use our own custom chat)
+    pcall(function()
+        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
+    end)
+
     self._gui = self:_buildUI()
     self._gui.Parent = playerGui
 

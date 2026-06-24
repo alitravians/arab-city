@@ -50,6 +50,19 @@ local DEFAULT_DATA = {
         sfxVolume = 0.7,
         notifications = true,
     },
+    -- New systems
+    friends = {},
+    friendRequests = {},
+    pets = {},
+    activePet = "",
+    tutorialCompleted = false,
+    dailyChallenges = {},
+    dailyChallengeDate = "",
+    totalEarnedToday = 0,
+    dailyPhotos = 0,
+    dailyMessages = 0,
+    dailyVisits = 0,
+    walkDistance = 0,
 }
 
 function DataManager:Init()
@@ -108,6 +121,13 @@ function DataManager:Init()
     -- Remote function handlers
     RemoteManager:SetServerCallback("GetPlayerData", function(player)
         return self:GetData(player)
+    end)
+
+    RemoteManager:OnServerEvent("TutorialComplete", function(player)
+        local data = self:GetData(player)
+        if data then
+            data.tutorialCompleted = true
+        end
     end)
 
     RemoteManager:SetServerCallback("GetInventory", function(player)

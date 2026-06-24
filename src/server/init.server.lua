@@ -36,6 +36,13 @@ local BadgeService = require(Services.BadgeService)
 local GamePassService = require(Services.GamePassService)
 local AdminService = require(Services.AdminService)
 local ChatService = require(Services.ChatService)
+local XPService = require(Services.XPService)
+local FriendService = require(Services.FriendService)
+local LeaderboardService = require(Services.LeaderboardService)
+local TradeService = require(Services.TradeService)
+local PetService = require(Services.PetService)
+local DailyChallengeService = require(Services.DailyChallengeService)
+local TrafficService = require(Services.TrafficService)
 
 -- Build the city map first (before services that need workspace objects)
 MapBuilder:Init()
@@ -102,6 +109,27 @@ print("[ArabCity] AdminService initialized")
 ChatService:Init(DataManager)
 print("[ArabCity] ChatService initialized")
 
+XPService:Init(DataManager)
+print("[ArabCity] XPService initialized")
+
+FriendService:Init(DataManager)
+print("[ArabCity] FriendService initialized")
+
+LeaderboardService:Init(DataManager)
+print("[ArabCity] LeaderboardService initialized")
+
+TradeService:Init(DataManager, XPService)
+print("[ArabCity] TradeService initialized")
+
+PetService:Init(DataManager)
+print("[ArabCity] PetService initialized")
+
+DailyChallengeService:Init(DataManager, XPService)
+print("[ArabCity] DailyChallengeService initialized")
+
+TrafficService:Init()
+print("[ArabCity] TrafficService initialized")
+
 -- Create workspace folders
 local function ensureFolder(parent, name)
     local folder = parent:FindFirstChild(name)
@@ -116,5 +144,6 @@ end
 ensureFolder(workspace, "Vehicles")
 ensureFolder(workspace, "Properties")
 ensureFolder(workspace, "SpawnPoints")
+ensureFolder(workspace, "TrafficCars")
 
 print("[ArabCity] Server fully initialized! Version: " .. Shared.Constants.VERSION)

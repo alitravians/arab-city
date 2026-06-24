@@ -19,6 +19,9 @@ local playerGui = player:WaitForChild("PlayerGui")
 local VehicleController = {}
 VehicleController._isDriving = false
 VehicleController._currentSpeed = 0
+VehicleController._currentGear = 1
+VehicleController._rpm = 0
+VehicleController._lastVelocity = Vector3.zero
 
 function VehicleController:Init()
     self._gui = self:_buildSpeedometerUI()
@@ -174,6 +177,41 @@ function VehicleController:_buildSpeedometerUI(): ScreenGui
     vehicleName.Parent = frame
     self._vehicleNameLabel = vehicleName
 
+    -- Gear indicator
+    local gearLabel = Instance.new("TextLabel")
+    gearLabel.Name = "GearLabel"
+    gearLabel.Size = UDim2.new(0.25, 0, 0.35, 0)
+    gearLabel.Position = UDim2.new(0.75, 0, 0.35, 0)
+    gearLabel.BackgroundTransparency = 1
+    gearLabel.Text = "G1"
+    gearLabel.TextColor3 = Color3.fromRGB(0, 200, 130)
+    gearLabel.Font = Enum.Font.GothamBold
+    gearLabel.TextSize = 16
+    gearLabel.ZIndex = 31
+    gearLabel.Parent = frame
+    self._gearLabel = gearLabel
+
+    -- RPM bar (below speed bar)
+    local rpmBg = Instance.new("Frame")
+    rpmBg.Size = UDim2.new(0.9, 0, 0, 4)
+    rpmBg.Position = UDim2.new(0.5, 0, 0.85, 0)
+    rpmBg.AnchorPoint = Vector2.new(0.5, 0)
+    rpmBg.BackgroundColor3 = Color3.fromRGB(40, 30, 30)
+    rpmBg.BorderSizePixel = 0
+    rpmBg.ZIndex = 31
+    rpmBg.Parent = frame
+    Instance.new("UICorner", rpmBg).CornerRadius = UDim.new(0, 2)
+
+    local rpmFill = Instance.new("Frame")
+    rpmFill.Name = "RPMBar"
+    rpmFill.Size = UDim2.new(0, 0, 1, 0)
+    rpmFill.BackgroundColor3 = Color3.fromRGB(255, 100, 50)
+    rpmFill.BorderSizePixel = 0
+    rpmFill.ZIndex = 32
+    rpmFill.Parent = rpmBg
+    Instance.new("UICorner", rpmFill).CornerRadius = UDim.new(0, 2)
+    self._rpmBar = rpmFill
+
     -- Controls hint
     local controls = Instance.new("TextLabel")
     controls.Size = UDim2.new(0, 180, 0, 20)
@@ -211,25 +249,81 @@ function VehicleController:_hideSpeedometer()
     end)
 end
 
+-- Gear thresholds (km/h) for automatic transmission
+local GEAR_SPEEDS = { 0, 20, 45, 80, 120, 180 }
+local GEAR_COUNT = #GEAR_SPEEDS
+
+local function getGear(kmh: number): number
+    local gear = 1
+    for i = GEAR_COUNT, 1, -1 do
+        if kmh >= GEAR_SPEEDS[i] then
+            gear = i
+            break
+        end
+    end
+    return gear
+end
+
+local function getRPM(kmh: number, gear: number): number
+    local low = GEAR_SPEEDS[gear] or 0
+    local high = GEAR_SPEEDS[gear + 1] or (low + 60)
+    local range = high - low
+    if range <= 0 then return 0.3 end
+    return math.clamp((kmh - low) / range, 0.15, 1)
+end
+
 function VehicleController:_startSpeedTracking(seat: VehicleSeat)
     if self._speedConnection then
         self._speedConnection:Disconnect()
     end
 
-    self._speedConnection = RunService.Heartbeat:Connect(function()
+    self._lastVelocity = Vector3.zero
+
+    self._speedConnection = RunService.Heartbeat:Connect(function(dt)
         if not self._isDriving or not seat or not seat.Parent then
             return
         end
 
         local velocity = seat.AssemblyLinearVelocity
         local speed = velocity.Magnitude
-        local kmh = math.floor(speed * 3.6) -- Convert studs/s to approx km/h
+        local kmh = math.floor(speed * 3.6)
 
+        -- Deceleration detection (for brake lights / tire screech)
+        local decel = (self._lastVelocity.Magnitude - velocity.Magnitude) / math.max(dt, 0.001)
+        self._lastVelocity = velocity
+
+        -- Gear and RPM
+        local gear = getGear(kmh)
+        local rpm = getRPM(kmh, gear)
+        self._currentGear = gear
+        self._rpm = rpm
         self._currentSpeed = kmh
+
+        -- Dynamic engine sound pitch based on RPM
+        if self._engineSound and self._engineSound.Parent then
+            local targetPitch = 0.6 + rpm * 0.8
+            self._engineSound.PlaybackSpeed = targetPitch
+            self._engineSound.Volume = 0.2 + rpm * 0.25
+        end
+
+        -- Tire screech on hard braking
+        if decel > 25 and kmh > 15 then
+            self:_playTireScreech(seat)
+        end
 
         -- Update UI
         if self._speedNumber then
             self._speedNumber.Text = tostring(kmh)
+        end
+
+        if self._gearLabel then
+            self._gearLabel.Text = "G" .. tostring(gear)
+        end
+
+        if self._rpmBar then
+            TweenService:Create(self._rpmBar, TweenInfo.new(0.1), {
+                Size = UDim2.new(rpm, 0, 1, 0),
+            }):Play()
         end
 
         -- Update speed bar
@@ -298,6 +392,30 @@ function VehicleController:_stopEngineSound()
     else
         self._engineSound = nil
     end
+end
+
+function VehicleController:_playTireScreech(seat: VehicleSeat)
+    if self._screechCooldown and os.clock() - self._screechCooldown < 2 then
+        return
+    end
+    self._screechCooldown = os.clock()
+
+    local parent = seat.Parent
+    if not parent then return end
+    local target = (parent :: Model):FindFirstChildWhichIsA("BasePart") or seat
+
+    local screech = Instance.new("Sound")
+    screech.Name = "TireScreech"
+    screech.SoundId = "rbxassetid://9125402735"
+    screech.Volume = 0.15
+    screech.PlaybackSpeed = 1.8
+    screech.Parent = target
+    screech:Play()
+    task.delay(1.5, function()
+        if screech and screech.Parent then
+            screech:Destroy()
+        end
+    end)
 end
 
 return VehicleController

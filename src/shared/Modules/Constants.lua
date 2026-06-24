@@ -390,6 +390,69 @@ Constants.BUILDING_ACTIONS = {
     Airport       = { nameAr = "المطار",             icon = "✈️", prompt = "سفر",      action = "airport" },
 }
 
+-- XP / Leveling System
+Constants.XP_BASE = 100
+Constants.XP_MULTIPLIER = 1.5
+Constants.MAX_LEVEL = 50
+Constants.XP_REWARDS = {
+    mission_complete = 50,
+    photo_taken = 10,
+    house_bought = 100,
+    car_bought = 75,
+    landmark_visited = 25,
+    job_payment = 15,
+    daily_login = 30,
+    trade_complete = 40,
+}
+
+function Constants.getXPForLevel(level: number): number
+    return math.floor(Constants.XP_BASE * (Constants.XP_MULTIPLIER ^ (level - 1)))
+end
+
+-- Pet System
+Constants.PET_TYPES = {
+    { id = "cat",      nameAr = "قطة",       price = 2000,  speed = 1.0, icon = "🐱" },
+    { id = "dog",      nameAr = "كلب",       price = 2500,  speed = 1.2, icon = "🐕" },
+    { id = "parrot",   nameAr = "ببغاء",     price = 5000,  speed = 0.8, icon = "🦜" },
+    { id = "falcon",   nameAr = "صقر",       price = 15000, speed = 1.5, icon = "🦅" },
+    { id = "horse",    nameAr = "حصان",      price = 30000, speed = 2.0, icon = "🐎" },
+    { id = "dragon",   nameAr = "تنين",      price = 100000,speed = 2.5, icon = "🐉" },
+}
+
+-- Daily Challenges
+Constants.DAILY_CHALLENGES = {
+    { id = "dc_walk",       nameAr = "امشِ 500 متر",       target = 500,  reward = 300,  trackKey = "walkDistance" },
+    { id = "dc_photos",     nameAr = "التقط 3 صور",         target = 3,    reward = 500,  trackKey = "dailyPhotos" },
+    { id = "dc_chat",       nameAr = "أرسل 10 رسائل",       target = 10,   reward = 200,  trackKey = "dailyMessages" },
+    { id = "dc_visit",      nameAr = "زُر 3 معالم",         target = 3,    reward = 400,  trackKey = "dailyVisits" },
+    { id = "dc_earn",       nameAr = "اكسب 1,000$",         target = 1000, reward = 600,  trackKey = "dailyEarnings" },
+}
+
+-- Leaderboard Categories
+Constants.LEADERBOARD_CATEGORIES = {
+    { id = "richest",   nameAr = "الأغنياء",   key = "cash",           icon = "💰" },
+    { id = "famous",    nameAr = "المشاهير",   key = "fame",           icon = "⭐" },
+    { id = "level",     nameAr = "المستويات",  key = "level",          icon = "🏆" },
+    { id = "workers",   nameAr = "المجتهدين",  key = "totalEarned",    icon = "💼" },
+}
+
+-- Tutorial Steps
+Constants.TUTORIAL_STEPS = {
+    { id = "welcome",   titleAr = "مرحباً بك!",       descAr = "مرحباً بك في Arab City! هذا دليلك السريع.", icon = "👋" },
+    { id = "hud",       titleAr = "واجهة اللعبة",     descAr = "شريط علوي: أكواد، متجر، حقيبة، هاتف، خريطة، مهمات.", icon = "🎮" },
+    { id = "jobs",      titleAr = "الوظائف",          descAr = "روح مركز الشرطة أو الإطفاء عشان تشتغل وتكسب فلوس.", icon = "💼" },
+    { id = "houses",    titleAr = "العقارات",         descAr = "اشترِ بيت من لوحات البيع الذهبية في الحي السكني.", icon = "🏠" },
+    { id = "cars",      titleAr = "السيارات",         descAr = "اشترِ سيارة من المتجر واستدعيها من نقاط السيارات.", icon = "🚗" },
+    { id = "social",    titleAr = "التواصل",          descAr = "استخدم الهاتف للتصوير والنشر على Social Network.", icon = "📱" },
+    { id = "missions",  titleAr = "المهمات",          descAr = "أكمل المهمات اليومية للحصول على مكافآت إضافية!", icon = "📋" },
+    { id = "done",      titleAr = "جاهز!",            descAr = "أنت جاهز لاستكشاف المدينة! استمتع!", icon = "🎉" },
+}
+
+-- Traffic / NPC settings
+Constants.TRAFFIC_CAR_COUNT = 12
+Constants.TRAFFIC_SPEED_MIN = 25
+Constants.TRAFFIC_SPEED_MAX = 45
+
 -- UI Colors (Midnight Blue Neon Theme)
 Constants.COLORS = {
     Primary = Color3.fromRGB(5, 10, 28),

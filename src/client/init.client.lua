@@ -26,6 +26,14 @@ local VehicleController = require(Controllers.VehicleController)
 local SocialNetworkUI = require(Controllers.SocialNetworkUI)
 local RankEffects = require(Controllers.RankEffects)
 local ChatController = require(Controllers.ChatController)
+local TutorialController = require(Controllers.TutorialController)
+local NotificationController = require(Controllers.NotificationController)
+local LeaderboardController = require(Controllers.LeaderboardController)
+local TradeController = require(Controllers.TradeController)
+local PetController = require(Controllers.PetController)
+local FriendController = require(Controllers.FriendController)
+local DailyChallengeController = require(Controllers.DailyChallengeController)
+local LODController = require(Controllers.LODController)
 
 -- Phase 1: Show loading screen immediately
 LoadingScreen:Show()
@@ -44,6 +52,14 @@ SocialNetworkUI:Init()
 RankEffects:Init()
 PhoneController:Init()
 ChatController:Init()
+NotificationController:Init()
+LeaderboardController:Init()
+TradeController:Init()
+PetController:Init()
+FriendController:Init()
+DailyChallengeController:Init()
+TutorialController:Init()
+LODController:Init()
 print("[ArabCity Client] Background controllers initialized")
 
 -- Phase 3: HUD initializes but stays behind loading screen
@@ -83,6 +99,16 @@ HUDController:RegisterPanelCallback(function(action: string)
         end
     elseif action == "chat" then
         ChatController:Toggle()
+    elseif action == "friends" then
+        FriendController:Toggle()
+    elseif action == "leaderboard" then
+        LeaderboardController:Toggle()
+    elseif action == "challenges" then
+        DailyChallengeController:Toggle()
+    elseif action == "pets" then
+        PetController:Toggle()
+    elseif action == "trade" then
+        TradeController:Toggle()
     end
 end)
 
@@ -95,6 +121,11 @@ task.spawn(function()
 
     print("[ArabCity Client] Loading complete, starting plane entry")
     PlaneEntry:Start()
+
+    -- Start tutorial for new players after plane entry
+    task.delay(3, function()
+        TutorialController:Start()
+    end)
 end)
 
 -- Rank entry effects are handled via the "RankEffectTrigger" remote event

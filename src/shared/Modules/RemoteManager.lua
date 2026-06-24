@@ -90,6 +90,40 @@ local REMOTE_EVENTS = {
     "ChatSendPrivate",
     "ChatPublicMessage",
     "ChatPrivateMessage",
+    -- Friends
+    "SendFriendRequest",
+    "AcceptFriendRequest",
+    "DeclineFriendRequest",
+    "RemoveFriend",
+    "FriendUpdate",
+    "FriendRequestReceived",
+    -- Trade
+    "TradeRequest",
+    "TradeResponse",
+    "TradeUpdate",
+    -- Pet
+    "BuyPet",
+    "EquipPet",
+    "UnequipPet",
+    "PetUpdate",
+    -- Leaderboard
+    "LeaderboardUpdate",
+    -- XP
+    "XPGain",
+    "LevelUp",
+    -- Tutorial
+    "TutorialComplete",
+    "TutorialStep",
+    -- Daily Challenges
+    "DailyChallengeProgress",
+    "ClaimDailyChallenge",
+    "DailyChallengeUpdate",
+    -- Notifications
+    "ShowNotification",
+    -- Traffic
+    "TrafficUpdate",
+    -- Money sync
+    "MoneyUpdate",
 }
 
 local REMOTE_FUNCTIONS = {
@@ -113,6 +147,11 @@ local REMOTE_FUNCTIONS = {
     "GetChatHistory",
     "GetPrivateChat",
     "GetOnlinePlayers",
+    "GetFriendsList",
+    "GetFriendRequests",
+    "GetLeaderboardData",
+    "GetDailyChallenges",
+    "GetPetInventory",
 }
 
 function RemoteManager:_getOrCreateFolder(): Folder

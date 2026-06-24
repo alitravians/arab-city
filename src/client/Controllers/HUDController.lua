@@ -34,12 +34,25 @@ function HUDController:Init()
         end
     end)
 
+    RemoteManager:OnClientEvent("MoneyUpdate", function(newBalance)
+        self:_updateCash(newBalance)
+    end)
+
     RemoteManager:OnClientEvent("PlayerDataLoaded", function(data)
         self:_updateFromData(data)
     end)
 
     RemoteManager:OnClientEvent("PlayerDataUpdate", function(key, value)
         self:_onDataUpdate(key, value)
+    end)
+
+    -- XP updates
+    RemoteManager:OnClientEvent("XPGain", function(_amount, currentXP, currentLevel)
+        self:_updateXP(currentXP, currentLevel)
+    end)
+
+    RemoteManager:OnClientEvent("LevelUp", function(newLevel)
+        self:_updateLevel(newLevel)
     end)
 
     -- Health monitoring
@@ -93,13 +106,18 @@ function HUDController:_buildHUD(): ScreenGui
 
     -- Top bar button definitions
     local topButtons = {
-        { name = "Codes",     icon = "🎁", labelAr = "أكواد",    order = 1, action = "codes" },
-        { name = "Shop",      icon = "🛒", labelAr = "المتجر",   order = 2, action = "shop" },
-        { name = "Inventory", icon = "🎒", labelAr = "الحقيبة",  order = 3, action = "inventory" },
-        { name = "Phone",     icon = "📱", labelAr = "الهاتف",   order = 4, action = "phone" },
-        { name = "Map",       icon = "🗺️", labelAr = "الخريطة",  order = 5, action = "map" },
-        { name = "Missions",  icon = "📋", labelAr = "المهمات",  order = 6, action = "missions" },
-        { name = "Admin",     icon = "🛡️", labelAr = "إدارة",    order = 7, action = "admin", adminOnly = true },
+        { name = "Codes",      icon = "🎁", labelAr = "أكواد",     order = 1, action = "codes" },
+        { name = "Shop",       icon = "🛒", labelAr = "المتجر",    order = 2, action = "shop" },
+        { name = "Inventory",  icon = "🎒", labelAr = "الحقيبة",   order = 3, action = "inventory" },
+        { name = "Phone",      icon = "📱", labelAr = "الهاتف",    order = 4, action = "phone" },
+        { name = "Map",        icon = "🗺️", labelAr = "الخريطة",   order = 5, action = "map" },
+        { name = "Missions",   icon = "📋", labelAr = "المهمات",   order = 6, action = "missions" },
+        { name = "Friends",    icon = "👥", labelAr = "أصدقاء",    order = 7, action = "friends" },
+        { name = "Leaderboard",icon = "🏆", labelAr = "متصدرين",   order = 8, action = "leaderboard" },
+        { name = "Challenges", icon = "🎯", labelAr = "تحديات",    order = 9, action = "challenges" },
+        { name = "Pets",       icon = "🐾", labelAr = "حيوانات",   order = 10, action = "pets" },
+        { name = "Trade",      icon = "🔄", labelAr = "تبادل",     order = 11, action = "trade" },
+        { name = "Admin",      icon = "🛡️", labelAr = "إدارة",     order = 12, action = "admin", adminOnly = true },
     }
 
     self._topButtons = {}
@@ -178,10 +196,10 @@ function HUDController:_buildHUD(): ScreenGui
     cashLabel.Parent = cashFrame
     self._cashLabel = cashLabel
 
-    -- Level display (center-left)
+    -- Level + XP display (center-left)
     local levelFrame = Instance.new("Frame")
     levelFrame.Name = "LevelFrame"
-    levelFrame.Size = UDim2.new(0, 120, 0, 40)
+    levelFrame.Size = UDim2.new(0, 220, 0, 40)
     levelFrame.Position = UDim2.new(0, 230, 0.5, 0)
     levelFrame.AnchorPoint = Vector2.new(0, 0.5)
     levelFrame.BackgroundColor3 = COLORS.CardBg
@@ -193,26 +211,61 @@ function HUDController:_buildHUD(): ScreenGui
     Instance.new("UICorner", levelFrame).CornerRadius = UDim.new(0, 8)
 
     local levelIcon = Instance.new("TextLabel")
-    levelIcon.Size = UDim2.new(0, 30, 1, 0)
+    levelIcon.Size = UDim2.new(0, 30, 0, 20)
+    levelIcon.Position = UDim2.new(0, 0, 0, 2)
     levelIcon.BackgroundTransparency = 1
     levelIcon.Text = "⭐"
-    levelIcon.TextSize = 18
+    levelIcon.TextSize = 16
     levelIcon.ZIndex = 22
     levelIcon.Parent = levelFrame
 
     local levelLabel = Instance.new("TextLabel")
     levelLabel.Name = "LevelLabel"
-    levelLabel.Size = UDim2.new(1, -35, 1, 0)
-    levelLabel.Position = UDim2.new(0, 30, 0, 0)
+    levelLabel.Size = UDim2.new(1, -35, 0, 20)
+    levelLabel.Position = UDim2.new(0, 30, 0, 2)
     levelLabel.BackgroundTransparency = 1
     levelLabel.Text = "المستوى 1"
     levelLabel.TextColor3 = COLORS.Accent
     levelLabel.Font = Enum.Font.GothamBold
-    levelLabel.TextSize = 16
+    levelLabel.TextSize = 14
     levelLabel.TextXAlignment = Enum.TextXAlignment.Left
     levelLabel.ZIndex = 22
     levelLabel.Parent = levelFrame
     self._levelLabel = levelLabel
+
+    -- XP Progress Bar
+    local xpBarBg = Instance.new("Frame")
+    xpBarBg.Name = "XPBarBg"
+    xpBarBg.Size = UDim2.new(1, -16, 0, 8)
+    xpBarBg.Position = UDim2.new(0.5, 0, 1, -12)
+    xpBarBg.AnchorPoint = Vector2.new(0.5, 0)
+    xpBarBg.BackgroundColor3 = Color3.fromRGB(30, 30, 50)
+    xpBarBg.BorderSizePixel = 0
+    xpBarBg.ZIndex = 22
+    xpBarBg.Parent = levelFrame
+    Instance.new("UICorner", xpBarBg).CornerRadius = UDim.new(1, 0)
+
+    local xpBarFill = Instance.new("Frame")
+    xpBarFill.Name = "XPBarFill"
+    xpBarFill.Size = UDim2.new(0, 0, 1, 0)
+    xpBarFill.BackgroundColor3 = COLORS.Accent
+    xpBarFill.BorderSizePixel = 0
+    xpBarFill.ZIndex = 23
+    xpBarFill.Parent = xpBarBg
+    Instance.new("UICorner", xpBarFill).CornerRadius = UDim.new(1, 0)
+    self._xpBarFill = xpBarFill
+
+    local xpText = Instance.new("TextLabel")
+    xpText.Name = "XPText"
+    xpText.Size = UDim2.new(1, 0, 1, 0)
+    xpText.BackgroundTransparency = 1
+    xpText.Text = "0 XP"
+    xpText.TextColor3 = COLORS.Text
+    xpText.Font = Enum.Font.GothamBold
+    xpText.TextSize = 7
+    xpText.ZIndex = 24
+    xpText.Parent = xpBarBg
+    self._xpText = xpText
 
     -- Health bar (right side)
     local healthFrame = Instance.new("Frame")
@@ -416,12 +469,29 @@ function HUDController:_monitorHealth()
     end)
 end
 
+function HUDController:_updateXP(currentXP: number, currentLevel: number)
+    self:_updateLevel(currentLevel)
+    local needed = Constants.getXPForLevel(currentLevel)
+    local ratio = if needed > 0 then math.clamp(currentXP / needed, 0, 1) else 0
+    if self._xpBarFill then
+        TweenService:Create(self._xpBarFill, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {
+            Size = UDim2.new(ratio, 0, 1, 0),
+        }):Play()
+    end
+    if self._xpText then
+        self._xpText.Text = currentXP .. " / " .. needed .. " XP"
+    end
+end
+
 function HUDController:_updateFromData(data)
     if data.cash then
         self:_updateCash(data.cash)
     end
     if data.level then
         self:_updateLevel(data.level)
+    end
+    if data.xp and data.level then
+        self:_updateXP(data.xp, data.level)
     end
 end
 
