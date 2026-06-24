@@ -209,14 +209,13 @@ function MapController:_buildMapUI(): ScreenGui
         markerLabel.ZIndex = 65
         markerLabel.Parent = marker
 
-        -- Distribute markers across the map (placeholder positions)
+        -- Distribute markers across the map (deterministic per location)
         local hash = 0
         for c = 1, #loc.id do
             hash = hash + string.byte(loc.id, c)
         end
-        math.randomseed(hash)
-        marker.Position = UDim2.new(math.random(10, 90) / 100, 0, math.random(10, 90) / 100, 0)
-        math.randomseed(os.clock())
+        local rng = Random.new(hash)
+        marker.Position = UDim2.new(rng:NextInteger(10, 90) / 100, 0, rng:NextInteger(10, 90) / 100, 0)
 
         self._markers[loc.id] = marker
     end

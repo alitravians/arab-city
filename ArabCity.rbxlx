@@ -1198,6 +1198,12 @@ function AdminService:Init(dataManager, economyService)
         end)
     end)
 
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_onPlayerJoined(player)
+        end)
+    end
+
     -- Admin actions from client
     RemoteManager:OnServerEvent("AdminAction", function(player, action, data)
         if not self:IsAdmin(player) then
@@ -1558,6 +1564,12 @@ function BadgeService:Init(dataManager)
             self:_onPlayerJoined(player)
         end)
     end)
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_onPlayerJoined(player)
+        end)
+    end
 
     Players.PlayerRemoving:Connect(function(player)
         self._awardedCache[player.UserId] = nil
@@ -2374,6 +2386,12 @@ function DataManager:Init()
         self:_loadPlayerData(player)
     end)
 
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_loadPlayerData(player)
+        end)
+    end
+
     Players.PlayerRemoving:Connect(function(player)
         -- Defer save so other services' PlayerRemoving handlers run first
         -- (VehicleService, JobService clean up player state before we save)
@@ -2649,10 +2667,9 @@ function EconomyService:CanAfford(player: Player, amount: number): boolean
 end
 
 function EconomyService:Transfer(fromPlayer: Player, toPlayer: Player, amount: number): boolean
-    if not self:CanAfford(fromPlayer, amount) then
+    if not self:RemoveMoney(fromPlayer, amount, "تحويل إلى " .. toPlayer.Name) then
         return false
     end
-    self:RemoveMoney(fromPlayer, amount, "تحويل إلى " .. toPlayer.Name)
     self:AddMoney(toPlayer, amount, "تحويل من " .. fromPlayer.Name)
     return true
 end
@@ -2735,10 +2752,15 @@ function EconomyService:_purchaseCamera(player: Player, cameraId: string)
         return
     end
 
-    -- Prevent duplicate purchase (server-side validation)
+    -- Prevent duplicate purchase and downgrade (server-side validation)
     local currentCamera = DataManager:GetValue(player, "cameraType") or "Beginner"
     if currentCamera == cameraName then
         RemoteManager:FireClient("CodeResult", player, false, "أنت تملك هذه الكاميرا بالفعل!")
+        return
+    end
+    local currentCamData = Constants.CAMERAS[currentCamera]
+    if currentCamData and currentCamData.price >= cameraPrice then
+        RemoteManager:FireClient("CodeResult", player, false, "لا يمكنك شراء كاميرا أقل من مستواك الحالي!")
         return
     end
 
@@ -3032,6 +3054,12 @@ function GamePassService:Init(dataManager)
             self:_loadPlayerPasses(player)
         end)
     end)
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_loadPlayerPasses(player)
+        end)
+    end
 
     Players.PlayerRemoving:Connect(function(player)
         self._ownedPasses[player.UserId] = nil
@@ -4120,6 +4148,12 @@ function MissionService:Init(dataManager, economyService)
             self:_assignDailyMissions(player)
         end)
     end)
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_assignDailyMissions(player)
+        end)
+    end
 end
 
 function MissionService:_assignDailyMissions(player: Player)
@@ -4499,6 +4533,12 @@ function RankService:Init(dataManager)
             self:_checkPlayerRanks(player)
         end)
     end)
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_checkPlayerRanks(player)
+        end)
+    end
 
     -- Handle GamePass purchases
     MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, gamePassId, purchased)
@@ -8804,14 +8844,13 @@ function MapController:_buildMapUI(): ScreenGui
         markerLabel.ZIndex = 65
         markerLabel.Parent = marker
 
-        -- Distribute markers across the map (placeholder positions)
+        -- Distribute markers across the map (deterministic per location)
         local hash = 0
         for c = 1, #loc.id do
             hash = hash + string.byte(loc.id, c)
         end
-        math.randomseed(hash)
-        marker.Position = UDim2.new(math.random(10, 90) / 100, 0, math.random(10, 90) / 100, 0)
-        math.randomseed(os.clock())
+        local rng = Random.new(hash)
+        marker.Position = UDim2.new(rng:NextInteger(10, 90) / 100, 0, rng:NextInteger(10, 90) / 100, 0)
 
         self._markers[loc.id] = marker
     end

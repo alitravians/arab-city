@@ -35,6 +35,12 @@ function AdminService:Init(dataManager, economyService)
         end)
     end)
 
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_onPlayerJoined(player)
+        end)
+    end
+
     -- Admin actions from client
     RemoteManager:OnServerEvent("AdminAction", function(player, action, data)
         if not self:IsAdmin(player) then

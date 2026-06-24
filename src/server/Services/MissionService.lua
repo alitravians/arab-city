@@ -28,6 +28,12 @@ function MissionService:Init(dataManager, economyService)
             self:_assignDailyMissions(player)
         end)
     end)
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_assignDailyMissions(player)
+        end)
+    end
 end
 
 function MissionService:_assignDailyMissions(player: Player)

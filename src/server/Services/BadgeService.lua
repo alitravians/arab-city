@@ -26,6 +26,12 @@ function BadgeService:Init(dataManager)
         end)
     end)
 
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_onPlayerJoined(player)
+        end)
+    end
+
     Players.PlayerRemoving:Connect(function(player)
         self._awardedCache[player.UserId] = nil
     end)

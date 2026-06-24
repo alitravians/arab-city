@@ -50,10 +50,9 @@ function EconomyService:CanAfford(player: Player, amount: number): boolean
 end
 
 function EconomyService:Transfer(fromPlayer: Player, toPlayer: Player, amount: number): boolean
-    if not self:CanAfford(fromPlayer, amount) then
+    if not self:RemoveMoney(fromPlayer, amount, "تحويل إلى " .. toPlayer.Name) then
         return false
     end
-    self:RemoveMoney(fromPlayer, amount, "تحويل إلى " .. toPlayer.Name)
     self:AddMoney(toPlayer, amount, "تحويل من " .. fromPlayer.Name)
     return true
 end
@@ -136,10 +135,15 @@ function EconomyService:_purchaseCamera(player: Player, cameraId: string)
         return
     end
 
-    -- Prevent duplicate purchase (server-side validation)
+    -- Prevent duplicate purchase and downgrade (server-side validation)
     local currentCamera = DataManager:GetValue(player, "cameraType") or "Beginner"
     if currentCamera == cameraName then
         RemoteManager:FireClient("CodeResult", player, false, "أنت تملك هذه الكاميرا بالفعل!")
+        return
+    end
+    local currentCamData = Constants.CAMERAS[currentCamera]
+    if currentCamData and currentCamData.price >= cameraPrice then
+        RemoteManager:FireClient("CodeResult", player, false, "لا يمكنك شراء كاميرا أقل من مستواك الحالي!")
         return
     end
 

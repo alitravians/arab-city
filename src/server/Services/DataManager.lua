@@ -56,6 +56,12 @@ function DataManager:Init()
         self:_loadPlayerData(player)
     end)
 
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_loadPlayerData(player)
+        end)
+    end
+
     Players.PlayerRemoving:Connect(function(player)
         -- Defer save so other services' PlayerRemoving handlers run first
         -- (VehicleService, JobService clean up player state before we save)

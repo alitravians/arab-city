@@ -20,6 +20,12 @@ function RankService:Init(dataManager)
         end)
     end)
 
+    for _, player in ipairs(Players:GetPlayers()) do
+        task.spawn(function()
+            self:_checkPlayerRanks(player)
+        end)
+    end
+
     -- Handle GamePass purchases
     MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, gamePassId, purchased)
         if purchased then
