@@ -2,6 +2,7 @@
     Arab City v2.0 - ChatService
     Custom chat system — public + private messaging.
     Text filtering via TextService for Roblox compliance.
+    Checks mute status via AdminService.
 ]]
 
 local Players = game:GetService("Players")
@@ -11,8 +12,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ChatService = {}
 
 local Shared, Remotes
+local AdminService
 
-function ChatService:Init()
+function ChatService:Init(adminService)
+    AdminService = adminService
     Shared = require(ReplicatedStorage:WaitForChild("ArabCity_Shared"))
     Remotes = Shared.Remotes
 
@@ -45,6 +48,16 @@ function ChatService:_handlePublicMessage(player, rawMessage)
     rawMessage = string.sub(rawMessage, 1, 200)
     if #rawMessage == 0 then return end
 
+    -- Check mute
+    if AdminService and AdminService.IsMuted and AdminService:IsMuted(player) then
+        Remotes:FireClient("ShowNotification", player, {
+            title = "محظور",
+            message = "أنت مكتوم من الدردشة",
+            icon = "🔇", duration = 3,
+        })
+        return
+    end
+
     local filtered = self:_filterText(rawMessage, player.UserId)
 
     local msgData = {
@@ -64,9 +77,20 @@ function ChatService:_handlePrivateMessage(player, targetName, rawMessage)
     rawMessage = string.sub(rawMessage, 1, 200)
     if #rawMessage == 0 then return end
 
+    -- Check mute
+    if AdminService and AdminService.IsMuted and AdminService:IsMuted(player) then
+        Remotes:FireClient("ShowNotification", player, {
+            title = "محظور",
+            message = "أنت مكتوم من الدردشة",
+            icon = "🔇", duration = 3,
+        })
+        return
+    end
+
     local target = nil
     for _, p in ipairs(Players:GetPlayers()) do
-        if p.Name == targetName or p.DisplayName == targetName then
+        if string.lower(p.Name) == string.lower(targetName) or
+           string.lower(p.DisplayName) == string.lower(targetName) then
             target = p
             break
         end

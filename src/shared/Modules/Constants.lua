@@ -15,15 +15,18 @@ Constants.OWNER_USER_IDS = {
     [1] = true, -- placeholder, replace with real owner ID
 }
 
-Constants.WELCOME_REWARD = 5000
+Constants.WELCOME_REWARD = 10000
 
 -- Economy
 Constants.CURRENCY_NAME = "Cash"
-Constants.START_CASH = 0
+Constants.START_CASH = 10000
 Constants.MAX_CASH = 999999999
 
 -- Jobs
+Constants.DEFAULT_JOB = "restaurant_worker"
+
 Constants.JOBS = {
+    { id = "restaurant_worker", name = "عامل مطعم", salary = 120, icon = "🍽️" },
     { id = "taxi",       name = "سائق تاكسي",  salary = 150, icon = "🚕" },
     { id = "police",     name = "شرطي",        salary = 200, icon = "👮" },
     { id = "doctor",     name = "طبيب",        salary = 250, icon = "🏥" },

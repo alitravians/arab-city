@@ -22,10 +22,10 @@ pcall(function()
 end)
 
 local DEFAULT_DATA = {
-    cash = 0,
+    cash = 10000,
     xp = 0,
     level = 1,
-    job = "",
+    job = "restaurant_worker",
     vehicles = {},
     properties = {},
     inventory = {},

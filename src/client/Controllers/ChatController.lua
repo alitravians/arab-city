@@ -5,8 +5,6 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
 
 local ChatController = {}
@@ -15,7 +13,6 @@ local Shared, Remotes, Constants
 local player = Players.LocalPlayer
 local _isOpen = false
 local _mode = "public"
-local _dmTarget = nil
 
 function ChatController:Init()
     Shared = require(ReplicatedStorage:WaitForChild("ArabCity_Shared"))
@@ -28,7 +25,6 @@ function ChatController:Init()
     pcall(function() StarterGui:SetCore("ChatActive", false) end)
     pcall(function() StarterGui:SetCore("ChatBarDisabled", true) end)
 
-    -- Monitor and re-disable
     task.spawn(function()
         while true do
             pcall(function() StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false) end)
@@ -176,7 +172,6 @@ function ChatController:Init()
     -- Tab switching
     publicTab.MouseButton1Click:Connect(function()
         _mode = "public"
-        _dmTarget = nil
         publicTab.BackgroundColor3 = colors.accent
         publicTab.TextColor3 = colors.text
         privateTab.BackgroundColor3 = colors.card
@@ -200,15 +195,12 @@ function ChatController:Init()
         textBox.Text = ""
 
         if _mode == "private" then
-            local at = string.match(text, "^@(%S+)%s")
-            if at then
-                local msg = string.gsub(text, "^@%S+%s", "")
-                Remotes:FireServer("SendChatMessage", { type = "private", target = at, message = msg })
-            else
-                Remotes:FireServer("SendChatMessage", { type = "private", target = _dmTarget, message = text })
+            local at, msg = string.match(text, "^@(%S+)%s(.+)")
+            if at and msg then
+                Remotes:FireServer("SendPrivateMessage", at, msg)
             end
         else
-            Remotes:FireServer("SendChatMessage", { type = "public", message = text })
+            Remotes:FireServer("SendChatMessage", text)
         end
     end
 
@@ -217,9 +209,17 @@ function ChatController:Init()
         if enterPressed then sendMessage() end
     end)
 
-    -- Receive
+    -- Receive public
     Remotes:OnClientEvent("ReceiveChatMessage", function(data)
         self:_addMessage(data)
+    end)
+
+    -- Receive private
+    Remotes:OnClientEvent("ReceivePrivateMessage", function(data)
+        if type(data) == "table" then
+            data.type = "private"
+            self:_addMessage(data)
+        end
     end)
 end
 
@@ -236,14 +236,14 @@ function ChatController:_addMessage(data)
     frame.LayoutOrder = self._msgOrder
     frame.Parent = self._msgScroll
 
-    local isPrivate = data.type == "private"
+    local isPrivate = data.type == "private" or data.channel == "private"
     local prefix = if isPrivate then "[خاص] " else ""
     local nameColor = if isPrivate then Color3.fromRGB(255, 140, 200) else colors.accent
 
     local nameLabel = Instance.new("TextLabel")
     nameLabel.Size = UDim2.new(1, 0, 0, 16)
     nameLabel.BackgroundTransparency = 1
-    nameLabel.Text = prefix .. (data.sender or "???")
+    nameLabel.Text = prefix .. (data.senderDisplayName or data.sender or "???")
     nameLabel.TextSize = 12
     nameLabel.Font = Enum.Font.GothamBold
     nameLabel.TextColor3 = nameColor
@@ -263,7 +263,6 @@ function ChatController:_addMessage(data)
     msgLabel.TextWrapped = true
     msgLabel.Parent = frame
 
-    -- Auto-scroll to bottom
     task.defer(function()
         self._msgScroll.CanvasPosition = Vector2.new(0, self._msgScroll.AbsoluteCanvasSize.Y)
     end)
