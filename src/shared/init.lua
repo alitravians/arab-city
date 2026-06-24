@@ -1,7 +1,15 @@
+--[[
+    Arab City - Shared Module
+    Central module for constants, utilities, and remote event management.
+]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local Shared = {}
 
-Shared.Constants = require(script.Modules.Constants)
-Shared.Utils = require(script.Modules.Utils)
-Shared.RemoteManager = require(script.Modules.RemoteManager)
+Shared.Constants = {
+    VERSION = "2.0.0",
+    GAME_NAME = "Arab City",
+}
 
 return Shared
