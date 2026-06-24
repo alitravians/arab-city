@@ -10,12 +10,25 @@ local Chat = game:GetService("Chat")
 local DisableDefaultChat = {}
 
 function DisableDefaultChat:Init()
-    -- Force Chat service to not load default chat
+    -- 1. Force Chat service to not load default chat
     pcall(function()
         Chat.LoadDefaultChat = false
     end)
 
-    -- Disable ChatWindowConfiguration (new TextChatService UI)
+    -- 2. Force TextChatService to legacy mode (no built-in UI)
+    pcall(function()
+        TextChatService.ChatVersion = Enum.ChatVersion.LegacyChatService
+    end)
+
+    -- 3. Prevent creation of default text channels and commands
+    pcall(function()
+        TextChatService.CreateDefaultTextChannels = false
+    end)
+    pcall(function()
+        TextChatService.CreateDefaultCommands = false
+    end)
+
+    -- 4. Disable ChatWindowConfiguration
     pcall(function()
         local chatWindow = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
         if chatWindow then
@@ -23,7 +36,7 @@ function DisableDefaultChat:Init()
         end
     end)
 
-    -- Disable BubbleChatConfiguration
+    -- 5. Disable BubbleChatConfiguration
     pcall(function()
         local bubbleChat = TextChatService:FindFirstChildOfClass("BubbleChatConfiguration")
         if bubbleChat then
@@ -31,18 +44,35 @@ function DisableDefaultChat:Init()
         end
     end)
 
-    -- Monitor for any future chat configuration changes
+    -- 6. Destroy any default TextChannels that Roblox may have created
+    pcall(function()
+        for _, child in ipairs(TextChatService:GetChildren()) do
+            if child:IsA("TextChannel") then
+                child:Destroy()
+            end
+        end
+    end)
+
+    -- 7. Monitor for any future chat configuration changes
     TextChatService.ChildAdded:Connect(function(child)
         if child:IsA("ChatWindowConfiguration") or child:IsA("BubbleChatConfiguration") then
             pcall(function()
                 child.Enabled = false
             end)
         end
+        if child:IsA("TextChannel") then
+            pcall(function()
+                child:Destroy()
+            end)
+        end
     end)
 
-    -- Watch for property changes on existing configs
+    -- 8. Persistent monitoring loop
     task.spawn(function()
-        for _ = 1, 60 do
+        for _ = 1, 120 do
+            pcall(function()
+                Chat.LoadDefaultChat = false
+            end)
             pcall(function()
                 local cw = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
                 if cw and cw.Enabled then
@@ -57,7 +87,7 @@ function DisableDefaultChat:Init()
         end
     end)
 
-    print("[ArabCity] Default chat disabled (server)")
+    print("[ArabCity] Default chat disabled (server) - LegacyChatService mode enforced")
 end
 
 return DisableDefaultChat

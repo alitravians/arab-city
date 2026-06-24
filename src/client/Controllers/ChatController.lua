@@ -95,13 +95,6 @@ local function disableDefaultChat()
         end
     end)
 
-    -- 6. Disable the entire Chat CoreGui type repeatedly
-    pcall(function()
-        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
-    end)
-    pcall(function()
-        StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
-    end)
 end
 
 function ChatController:Init()
