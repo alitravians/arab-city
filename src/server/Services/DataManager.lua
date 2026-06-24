@@ -180,12 +180,29 @@ function DataManager:_savePlayerData(player: Player)
     end
 end
 
+function DataManager:_isArray(tbl: { [any]: any }): boolean
+    local count = 0
+    for _ in pairs(tbl) do
+        count += 1
+    end
+    if count == 0 then
+        return true -- empty tables treated as arrays (list fields default to {})
+    end
+    return tbl[1] ~= nil
+end
+
 function DataManager:_mergeDefaults(data: { [string]: any }): { [string]: any }
     local merged = self:_deepCopy(DEFAULT_DATA)
     for key, value in pairs(data) do
         if type(value) == "table" and type(merged[key]) == "table" then
-            for subKey, subValue in pairs(value) do
-                merged[key][subKey] = subValue
+            if self:_isArray(value) or self:_isArray(merged[key]) then
+                -- Array fields: full replacement (posts, vehicles, followers, etc.)
+                merged[key] = self:_deepCopy(value)
+            else
+                -- Dict fields: sub-key merge (settings, etc.)
+                for subKey, subValue in pairs(value) do
+                    merged[key][subKey] = subValue
+                end
             end
         else
             merged[key] = value

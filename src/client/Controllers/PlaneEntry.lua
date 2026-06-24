@@ -50,6 +50,7 @@ function PlaneEntry:Start()
     local rootPart = character:WaitForChild("HumanoidRootPart")
 
     -- Disable character movement during plane phase
+    humanoid:SetAttribute("InPlaneEntry", true)
     humanoid.WalkSpeed = 0
     humanoid.JumpPower = 0
 
@@ -526,6 +527,7 @@ function PlaneEntry:_land(_rootPart: BasePart, humanoid: Humanoid)
     end
 
     -- Restore character movement
+    humanoid:SetAttribute("InPlaneEntry", false)
     humanoid.WalkSpeed = 16
     humanoid.JumpPower = 50
 

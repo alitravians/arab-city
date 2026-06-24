@@ -136,6 +136,13 @@ function EconomyService:_purchaseCamera(player: Player, cameraId: string)
         return
     end
 
+    -- Prevent duplicate purchase (server-side validation)
+    local currentCamera = DataManager:GetValue(player, "cameraType") or "Beginner"
+    if currentCamera == cameraName then
+        RemoteManager:FireClient("CodeResult", player, false, "أنت تملك هذه الكاميرا بالفعل!")
+        return
+    end
+
     if not self:RemoveMoney(player, cameraPrice, "شراء " .. cameraNameAr) then
         RemoteManager:FireClient("CodeResult", player, false, "رصيدك غير كافٍ!")
         return

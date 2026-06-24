@@ -157,7 +157,14 @@ function GamePassService:_applySpeedBenefit(player: Player)
         return
     end
     local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if humanoid and humanoid.WalkSpeed < 24 then
+    if not humanoid then
+        return
+    end
+    -- Skip during plane entry / parachute phases to avoid overriding movement lock
+    if humanoid:GetAttribute("InPlaneEntry") then
+        return
+    end
+    if humanoid.WalkSpeed < 24 then
         humanoid.WalkSpeed = 24 -- 50% faster than default 16
     end
 end

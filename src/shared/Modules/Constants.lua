@@ -318,8 +318,7 @@ Constants.WEATHER_TYPES = {
 -- Day cycle duration in seconds (full day = 20 minutes)
 Constants.DAY_CYCLE_DURATION = 1200
 
--- Owner UserId (replace with actual owner)
-Constants.OWNER_USER_ID = 0
+-- (OWNER_USER_ID already defined at top of file)
 
 -- Badge Definitions (replace id=0 with actual Badge IDs from Creator Hub)
 Constants.BADGES = {

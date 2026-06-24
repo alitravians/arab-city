@@ -4,6 +4,7 @@
     Only visible/accessible to admins.
 ]]
 
+local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -16,7 +17,7 @@ local EconomyService
 
 local AdminService = {}
 AdminService._admins = {} -- [userId] = true
-AdminService._bans = {}   -- [userId] = { reason, duration, bannedAt, bannedBy }
+AdminService._banStore = DataStoreService:GetDataStore("ArabCity_Bans_v1")
 
 function AdminService:Init(dataManager, economyService)
     DataManager = dataManager
@@ -65,8 +66,8 @@ function AdminService:_onPlayerJoined(player: Player)
         attempts += 1
     end
 
-    -- Check if player is banned
-    local banInfo = self._bans[player.UserId]
+    -- Check if player is banned (persisted in DataStore)
+    local banInfo = self:_getBan(player.UserId)
     if banInfo then
         if banInfo.duration == 0 then
             -- Permanent ban
@@ -79,8 +80,8 @@ function AdminService:_onPlayerJoined(player: Player)
                 player:Kick("تم حظرك مؤقتاً.\nالسبب: " .. (banInfo.reason or "غير محدد") .. "\nالمتبقي: " .. remaining .. " دقيقة")
                 return
             else
-                -- Ban expired
-                self._bans[player.UserId] = nil
+                -- Ban expired, remove from DataStore
+                self:_removeBan(player.UserId)
             end
         end
     end
@@ -158,12 +159,13 @@ function AdminService:_banPlayer(admin: Player, data: { [string]: any })
         return
     end
 
-    self._bans[targetId] = {
+    local banData = {
         reason = reason,
         duration = duration,
         bannedAt = DateTime.now().UnixTimestamp,
         bannedBy = admin.UserId,
     }
+    self:_saveBan(targetId, banData)
 
     local target = self:_findPlayer(targetId)
     if target then
@@ -188,7 +190,7 @@ function AdminService:_unbanPlayer(admin: Player, data: { [string]: any })
         return
     end
 
-    self._bans[targetId] = nil
+    self:_removeBan(targetId)
     RemoteManager:FireClient("AdminResponse", admin, {
         success = true,
         message = "تم رفع الحظر عن اللاعب",
@@ -327,6 +329,36 @@ function AdminService:_getPlayerList(): { any }
         })
     end
     return list
+end
+
+-- DataStore-backed ban persistence
+
+function AdminService:_getBan(userId: number): { [string]: any }?
+    local success, result = pcall(function()
+        return self._banStore:GetAsync("Ban_" .. tostring(userId))
+    end)
+    if success and result then
+        return result
+    end
+    return nil
+end
+
+function AdminService:_saveBan(userId: number, banData: { [string]: any })
+    local success, err = pcall(function()
+        self._banStore:SetAsync("Ban_" .. tostring(userId), banData)
+    end)
+    if not success then
+        warn("[AdminService] Failed to persist ban for " .. tostring(userId) .. ": " .. tostring(err))
+    end
+end
+
+function AdminService:_removeBan(userId: number)
+    local success, err = pcall(function()
+        self._banStore:RemoveAsync("Ban_" .. tostring(userId))
+    end)
+    if not success then
+        warn("[AdminService] Failed to remove ban for " .. tostring(userId) .. ": " .. tostring(err))
+    end
 end
 
 return AdminService

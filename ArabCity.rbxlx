@@ -342,8 +342,7 @@ Constants.WEATHER_TYPES = {
 -- Day cycle duration in seconds (full day = 20 minutes)
 Constants.DAY_CYCLE_DURATION = 1200
 
--- Owner UserId (replace with actual owner)
-Constants.OWNER_USER_ID = 0
+-- (OWNER_USER_ID already defined at top of file)
 
 -- Badge Definitions (replace id=0 with actual Badge IDs from Creator Hub)
 Constants.BADGES = {
@@ -1084,6 +1083,7 @@ return AchievementService
     Only visible/accessible to admins.
 ]]
 
+local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -1096,7 +1096,7 @@ local EconomyService
 
 local AdminService = {}
 AdminService._admins = {} -- [userId] = true
-AdminService._bans = {}   -- [userId] = { reason, duration, bannedAt, bannedBy }
+AdminService._banStore = DataStoreService:GetDataStore("ArabCity_Bans_v1")
 
 function AdminService:Init(dataManager, economyService)
     DataManager = dataManager
@@ -1145,8 +1145,8 @@ function AdminService:_onPlayerJoined(player: Player)
         attempts += 1
     end
 
-    -- Check if player is banned
-    local banInfo = self._bans[player.UserId]
+    -- Check if player is banned (persisted in DataStore)
+    local banInfo = self:_getBan(player.UserId)
     if banInfo then
         if banInfo.duration == 0 then
             -- Permanent ban
@@ -1159,8 +1159,8 @@ function AdminService:_onPlayerJoined(player: Player)
                 player:Kick("تم حظرك مؤقتاً.\nالسبب: " .. (banInfo.reason or "غير محدد") .. "\nالمتبقي: " .. remaining .. " دقيقة")
                 return
             else
-                -- Ban expired
-                self._bans[player.UserId] = nil
+                -- Ban expired, remove from DataStore
+                self:_removeBan(player.UserId)
             end
         end
     end
@@ -1238,12 +1238,13 @@ function AdminService:_banPlayer(admin: Player, data: { [string]: any })
         return
     end
 
-    self._bans[targetId] = {
+    local banData = {
         reason = reason,
         duration = duration,
         bannedAt = DateTime.now().UnixTimestamp,
         bannedBy = admin.UserId,
     }
+    self:_saveBan(targetId, banData)
 
     local target = self:_findPlayer(targetId)
     if target then
@@ -1268,7 +1269,7 @@ function AdminService:_unbanPlayer(admin: Player, data: { [string]: any })
         return
     end
 
-    self._bans[targetId] = nil
+    self:_removeBan(targetId)
     RemoteManager:FireClient("AdminResponse", admin, {
         success = true,
         message = "تم رفع الحظر عن اللاعب",
@@ -1407,6 +1408,36 @@ function AdminService:_getPlayerList(): { any }
         })
     end
     return list
+end
+
+-- DataStore-backed ban persistence
+
+function AdminService:_getBan(userId: number): { [string]: any }?
+    local success, result = pcall(function()
+        return self._banStore:GetAsync("Ban_" .. tostring(userId))
+    end)
+    if success and result then
+        return result
+    end
+    return nil
+end
+
+function AdminService:_saveBan(userId: number, banData: { [string]: any })
+    local success, err = pcall(function()
+        self._banStore:SetAsync("Ban_" .. tostring(userId), banData)
+    end)
+    if not success then
+        warn("[AdminService] Failed to persist ban for " .. tostring(userId) .. ": " .. tostring(err))
+    end
+end
+
+function AdminService:_removeBan(userId: number)
+    local success, err = pcall(function()
+        self._banStore:RemoveAsync("Ban_" .. tostring(userId))
+    end)
+    if not success then
+        warn("[AdminService] Failed to remove ban for " .. tostring(userId) .. ": " .. tostring(err))
+    end
 end
 
 return AdminService
@@ -2383,12 +2414,29 @@ function DataManager:_savePlayerData(player: Player)
     end
 end
 
+function DataManager:_isArray(tbl: { [any]: any }): boolean
+    local count = 0
+    for _ in pairs(tbl) do
+        count += 1
+    end
+    if count == 0 then
+        return true -- empty tables treated as arrays (list fields default to {})
+    end
+    return tbl[1] ~= nil
+end
+
 function DataManager:_mergeDefaults(data: { [string]: any }): { [string]: any }
     local merged = self:_deepCopy(DEFAULT_DATA)
     for key, value in pairs(data) do
         if type(value) == "table" and type(merged[key]) == "table" then
-            for subKey, subValue in pairs(value) do
-                merged[key][subKey] = subValue
+            if self:_isArray(value) or self:_isArray(merged[key]) then
+                -- Array fields: full replacement (posts, vehicles, followers, etc.)
+                merged[key] = self:_deepCopy(value)
+            else
+                -- Dict fields: sub-key merge (settings, etc.)
+                for subKey, subValue in pairs(value) do
+                    merged[key][subKey] = subValue
+                end
             end
         else
             merged[key] = value
@@ -2600,6 +2648,13 @@ function EconomyService:_purchaseCamera(player: Player, cameraId: string)
     end
 
     if not cameraName then
+        return
+    end
+
+    -- Prevent duplicate purchase (server-side validation)
+    local currentCamera = DataManager:GetValue(player, "cameraType") or "Beginner"
+    if currentCamera == cameraName then
+        RemoteManager:FireClient("CodeResult", player, false, "أنت تملك هذه الكاميرا بالفعل!")
         return
     end
 
@@ -3025,7 +3080,14 @@ function GamePassService:_applySpeedBenefit(player: Player)
         return
     end
     local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if humanoid and humanoid.WalkSpeed < 24 then
+    if not humanoid then
+        return
+    end
+    -- Skip during plane entry / parachute phases to avoid overriding movement lock
+    if humanoid:GetAttribute("InPlaneEntry") then
+        return
+    end
+    if humanoid.WalkSpeed < 24 then
         humanoid.WalkSpeed = 24 -- 50% faster than default 16
     end
 end
@@ -9526,6 +9588,7 @@ function PlaneEntry:Start()
     local rootPart = character:WaitForChild("HumanoidRootPart")
 
     -- Disable character movement during plane phase
+    humanoid:SetAttribute("InPlaneEntry", true)
     humanoid.WalkSpeed = 0
     humanoid.JumpPower = 0
 
@@ -10002,6 +10065,7 @@ function PlaneEntry:_land(_rootPart: BasePart, humanoid: Humanoid)
     end
 
     -- Restore character movement
+    humanoid:SetAttribute("InPlaneEntry", false)
     humanoid.WalkSpeed = 16
     humanoid.JumpPower = 50
 
