@@ -42,29 +42,44 @@ local DailyChallengeController = require(controllersFolder:WaitForChild("DailyCh
 local RankEffects              = require(controllersFolder:WaitForChild("RankEffects"))
 local LODController            = require(controllersFolder:WaitForChild("LODController"))
 
--- ── Init in order (loading screen first) ──
+-- ── Init: critical UI first (icons), then spawn the rest in parallel ──
 LoadingScreen:Init()
 NotificationController:Init()
 HUDController:Init()
 ChatController:Init()
-AdminController:Init()
-ShopController:Init()
-InventoryController:Init()
-CodeController:Init()
-MissionController:Init()
 MapController:Init()
 PhoneController:Init()
-VehicleController:Init()
-SocialNetworkUI:Init()
-FriendController:Init()
-TradeController:Init()
-PetController:Init()
-LeaderboardController:Init()
-DailyChallengeController:Init()
-CameraSystem:Init()
-PlaneEntry:Init()
-RankEffects:Init()
-LODController:Init()
-TutorialController:Init()
+AdminController:Init()
 
-print("[ArabCity] Client initialized — all 22 controllers loaded — " .. Shared.Constants.VERSION)
+-- Spawn remaining controllers in parallel so icons appear instantly
+local secondary = {
+    { ShopController, "ShopController" },
+    { InventoryController, "InventoryController" },
+    { CodeController, "CodeController" },
+    { MissionController, "MissionController" },
+    { VehicleController, "VehicleController" },
+    { SocialNetworkUI, "SocialNetworkUI" },
+    { FriendController, "FriendController" },
+    { TradeController, "TradeController" },
+    { PetController, "PetController" },
+    { LeaderboardController, "LeaderboardController" },
+    { DailyChallengeController, "DailyChallengeController" },
+    { CameraSystem, "CameraSystem" },
+    { PlaneEntry, "PlaneEntry" },
+    { RankEffects, "RankEffects" },
+    { LODController, "LODController" },
+}
+for _, entry in ipairs(secondary) do
+    task.spawn(function()
+        local ok, err = pcall(function() entry[1]:Init() end)
+        if not ok then
+            warn("[ArabCity] Failed to init " .. entry[2] .. ": " .. tostring(err))
+        end
+    end)
+end
+
+-- Tutorial last (needs other systems ready)
+task.defer(function()
+    TutorialController:Init()
+    print("[ArabCity] Client initialized — all 22 controllers loaded — " .. Shared.Constants.VERSION)
+end)
