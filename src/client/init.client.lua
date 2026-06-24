@@ -25,6 +25,7 @@ local CameraSystem = require(Controllers.CameraSystem)
 local VehicleController = require(Controllers.VehicleController)
 local SocialNetworkUI = require(Controllers.SocialNetworkUI)
 local RankEffects = require(Controllers.RankEffects)
+local ChatController = require(Controllers.ChatController)
 
 -- Phase 1: Show loading screen immediately
 LoadingScreen:Show()
@@ -42,6 +43,7 @@ VehicleController:Init()
 SocialNetworkUI:Init()
 RankEffects:Init()
 PhoneController:Init()
+ChatController:Init()
 print("[ArabCity Client] Background controllers initialized")
 
 -- Phase 3: HUD initializes but stays behind loading screen
@@ -79,6 +81,8 @@ HUDController:RegisterPanelCallback(function(action: string)
         if panel then
             panel.Enabled = not panel.Enabled
         end
+    elseif action == "chat" then
+        ChatController:Toggle()
     end
 end)
 
