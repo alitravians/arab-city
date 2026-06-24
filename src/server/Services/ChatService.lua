@@ -190,8 +190,8 @@ function ChatService:_filterText(player: Player, message: string): string?
     if success then
         return result
     end
-    -- Fallback: return original if filter fails (dev environment)
-    return message
+    warn("[ChatService] Text filter failed for player", player.Name, "- rejecting message")
+    return nil
 end
 
 function ChatService:_chatKey(userId1: number, userId2: number): string

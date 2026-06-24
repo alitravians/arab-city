@@ -126,6 +126,8 @@ function SocialNetworkService:LikePost(player: Player, postOwnerId: number, post
     DataManager:SetValue(ownerPlayer, "posts", posts)
     DataManager:IncrementValue(ownerPlayer, "fame", 1)
 
+    self:_updateGlobalFeedEntry(postOwnerId, postIndex, #post.likes, #post.comments)
+
     RemoteManager:FireClient("SocialProfileUpdate", ownerPlayer, "like", postIndex, player.Name)
 end
 
@@ -156,6 +158,8 @@ function SocialNetworkService:CommentOnPost(player: Player, postOwnerId: number,
 
     DataManager:SetValue(ownerPlayer, "posts", posts)
     DataManager:IncrementValue(ownerPlayer, "fame", 1)
+
+    self:_updateGlobalFeedEntry(postOwnerId, postIndex, #posts[postIndex].likes, #posts[postIndex].comments)
 
     RemoteManager:FireClient("SocialProfileUpdate", ownerPlayer, "comment", postIndex, player.Name)
 end
@@ -274,6 +278,16 @@ function SocialNetworkService:GetLeaderboard()
         top[i] = leaderboard[i]
     end
     return top
+end
+
+function SocialNetworkService:_updateGlobalFeedEntry(authorId: number, postIndex: number, likeCount: number, commentCount: number)
+    for _, entry in ipairs(self._globalFeed) do
+        if entry.authorId == authorId and entry.postIndex == postIndex then
+            entry.likeCount = likeCount
+            entry.commentCount = commentCount
+            break
+        end
+    end
 end
 
 return SocialNetworkService

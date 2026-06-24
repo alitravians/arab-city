@@ -131,13 +131,22 @@ function RealEstateService:BuyProperty(player: Player, propertyId: string)
         return
     end
 
+    -- Block purchase if owner is offline to prevent data inconsistency
+    if property.owner > 0 then
+        local ownerPlayer = Players:GetPlayerByUserId(property.owner)
+        if not ownerPlayer then
+            RemoteManager:FireClient("CodeResult", player, false, "المالك غير متصل حالياً، حاول لاحقاً!")
+            return
+        end
+    end
+
     local price = property.askingPrice
     if not EconomyService:RemoveMoney(player, price, "شراء " .. property.nameAr) then
         RemoteManager:FireClient("CodeResult", player, false, "رصيدك غير كافٍ!")
         return
     end
 
-    -- Pay previous owner if any
+    -- Pay previous owner
     if property.owner > 0 then
         local ownerPlayer = Players:GetPlayerByUserId(property.owner)
         if ownerPlayer then
