@@ -1253,6 +1253,154 @@ local function createNPCCar(parent: Instance, position: Vector3, color: Color3):
 end
 
 ------------------------------------------------------------
+-- DECORATION: Plaza / Seating Area
+------------------------------------------------------------
+local function createPlaza(parent: Instance, position: Vector3, size: number)
+    size = size or 20
+    local model = makeModel(parent, "Plaza")
+
+    -- Brick/stone ground
+    makePart(model, "PlazaGround", Vector3.new(size, 0.15, size), position + Vector3.new(0, 0.02, 0), C.sidewalk, Enum.Material.Brick)
+
+    -- Border stones
+    for _, side in ipairs({-1, 1}) do
+        makePart(model, "BorderX", Vector3.new(size + 1, 0.4, 0.6), position + Vector3.new(0, 0.2, side * size / 2), C.concrete, Enum.Material.Concrete)
+        makePart(model, "BorderZ", Vector3.new(0.6, 0.4, size + 1), position + Vector3.new(side * size / 2, 0.2, 0), C.concrete, Enum.Material.Concrete)
+    end
+
+    -- Center decorative circle
+    makeCylinder(model, "CenterCircle", Vector3.new(0.12, size / 3, size / 3), position + Vector3.new(0, 0.1, 0), Color3.fromRGB(180, 160, 130), Enum.Material.Cobblestone, Vector3.new(0, 0, 90))
+
+    -- Corner planters with flowers
+    for _, sx in ipairs({-1, 1}) do
+        for _, sz in ipairs({-1, 1}) do
+            local cx = sx * (size / 2 - 3)
+            local cz = sz * (size / 2 - 3)
+            makePart(model, "Planter", Vector3.new(4, 1.2, 4), position + Vector3.new(cx, 0.6, cz), C.concrete, Enum.Material.Concrete)
+            makePart(model, "Soil", Vector3.new(3.6, 0.2, 3.6), position + Vector3.new(cx, 1.3, cz), C.brown, Enum.Material.Sand)
+            -- Flowers
+            for f = 0, 2 do
+                local fx = cx + (f - 1) * 1.2
+                local flowerC = ({C.brightRed, C.yellow, C.pastelOrange})[f + 1]
+                makeBall(model, "Flower", Vector3.new(0.6, 0.6, 0.6), position + Vector3.new(fx, 1.7, cz), flowerC, Enum.Material.Grass)
+            end
+        end
+    end
+
+    -- Benches around the plaza
+    for _, side in ipairs({-1, 1}) do
+        createBench(model, position + Vector3.new(side * (size / 2 - 2), 0, 0))
+        createBench(model, position + Vector3.new(0, 0, side * (size / 2 - 2)))
+    end
+
+    model.Parent = parent
+    return model
+end
+
+------------------------------------------------------------
+-- DECORATION: Parking Lot
+------------------------------------------------------------
+local function createParkingLot(parent: Instance, position: Vector3, spots: number, horizontal: boolean)
+    spots = spots or 4
+    for i = 0, spots - 1 do
+        local ox, oz
+        if horizontal then
+            ox = -((spots - 1) * 4) / 2 + i * 4
+            oz = 0
+        else
+            ox = 0
+            oz = -((spots - 1) * 4) / 2 + i * 4
+        end
+        -- Parking spot outline
+        local w, d = 3.5, 6
+        makePart(parent, "ParkSpot", Vector3.new(w, 0.06, d), position + Vector3.new(ox, 0.03, oz), C.asphalt, Enum.Material.Asphalt)
+        -- White line borders
+        makePart(parent, "ParkLine", Vector3.new(0.12, 0.04, d), position + Vector3.new(ox - w / 2, 0.07, oz), C.white, Enum.Material.SmoothPlastic)
+        makePart(parent, "ParkLine", Vector3.new(0.12, 0.04, d), position + Vector3.new(ox + w / 2, 0.07, oz), C.white, Enum.Material.SmoothPlastic)
+    end
+end
+
+------------------------------------------------------------
+-- DECORATION: Flower Bed Row (sidewalk accent)
+------------------------------------------------------------
+local function createFlowerRow(parent: Instance, position: Vector3, length: number, axis: string)
+    local count = math.floor(length / 3)
+    for i = 0, count - 1 do
+        local offset = -(count - 1) * 1.5 + i * 3
+        local pos
+        if axis == "x" then
+            pos = position + Vector3.new(offset, 0, 0)
+        else
+            pos = position + Vector3.new(0, 0, offset)
+        end
+        -- Planter box
+        makePart(parent, "FlowerBox", Vector3.new(2.4, 0.8, 1.2), pos + Vector3.new(0, 0.4, 0), C.concrete, Enum.Material.Concrete)
+        makePart(parent, "FlowerSoil", Vector3.new(2, 0.15, 0.8), pos + Vector3.new(0, 0.85, 0), C.brown, Enum.Material.Sand)
+        -- Flowers
+        local flowerColors = {C.brightRed, C.yellow, C.pastelOrange, C.cyan, C.white}
+        makeBall(parent, "Flower", Vector3.new(0.5, 0.5, 0.5), pos + Vector3.new(-0.5, 1.1, 0), flowerColors[(i % 5) + 1], Enum.Material.Grass)
+        makeBall(parent, "Flower", Vector3.new(0.5, 0.5, 0.5), pos + Vector3.new(0.5, 1.1, 0), flowerColors[((i + 2) % 5) + 1], Enum.Material.Grass)
+    end
+end
+
+------------------------------------------------------------
+-- DECORATION: Roundabout with Fountain
+------------------------------------------------------------
+local function createRoundabout(parent: Instance, position: Vector3, radius: number)
+    radius = radius or 16
+    local model = makeModel(parent, "Roundabout")
+
+    -- Road ring
+    makeCylinder(model, "RoadRing", Vector3.new(0.3, radius * 2 + 12, radius * 2 + 12), position + Vector3.new(0, 0.15, 0), C.asphalt, Enum.Material.Asphalt, Vector3.new(0, 0, 90))
+
+    -- Inner island (grass + brick)
+    makeCylinder(model, "Island", Vector3.new(0.2, radius * 2, radius * 2), position + Vector3.new(0, 0.12, 0), C.grassGreen, Enum.Material.Grass, Vector3.new(0, 0, 90))
+    makeCylinder(model, "IslandBorder", Vector3.new(0.5, radius * 2 + 0.6, radius * 2 + 0.6), position + Vector3.new(0, 0.25, 0), C.concrete, Enum.Material.Concrete, Vector3.new(0, 0, 90))
+
+    -- Central fountain (grand)
+    makeCylinder(model, "FountainPool", Vector3.new(1.5, 8, 8), position + Vector3.new(0, 0.75, 0), C.marble, Enum.Material.Marble, Vector3.new(0, 0, 90))
+    makeCylinder(model, "FountainWater", Vector3.new(1, 6.5, 6.5), position + Vector3.new(0, 1.2, 0), C.water, Enum.Material.Glass, Vector3.new(0, 0, 90))
+    makeCylinder(model, "FountainPillar", Vector3.new(6, 0.6, 0.6), position + Vector3.new(0, 4, 0), C.marble, Enum.Material.Marble, Vector3.new(0, 0, 90))
+
+    -- Tiered bowls
+    makeCylinder(model, "Bowl1", Vector3.new(0.3, 3, 3), position + Vector3.new(0, 3, 0), C.marble, Enum.Material.Marble, Vector3.new(0, 0, 90))
+    makeCylinder(model, "Bowl2", Vector3.new(0.3, 2, 2), position + Vector3.new(0, 5.5, 0), C.marble, Enum.Material.Marble, Vector3.new(0, 0, 90))
+
+    -- Top spout with light
+    local spout = makePart(model, "Spout", Vector3.new(1, 0.6, 1), position + Vector3.new(0, 7.5, 0), C.water, Enum.Material.Neon, 0.3)
+    addLight(spout, Color3.fromRGB(100, 200, 255), 30, 1.2)
+
+    -- Accent lights around fountain base
+    for i = 0, 5 do
+        local angle = math.rad(i * 60)
+        local lx = math.cos(angle) * 3.5
+        local lz = math.sin(angle) * 3.5
+        local uplighter = makePart(model, "Uplighter", Vector3.new(0.4, 0.3, 0.4), position + Vector3.new(lx, 0.15, lz), C.gold, Enum.Material.Neon, 0.5)
+        addLight(uplighter, Color3.fromRGB(255, 220, 150), 12, 0.6)
+    end
+
+    -- Decorative palm trees on island
+    for i = 0, 3 do
+        local angle = math.rad(i * 90 + 45)
+        local tx = math.cos(angle) * (radius - 3)
+        local tz = math.sin(angle) * (radius - 3)
+        createPalmTree(model, position + Vector3.new(tx, 0, tz))
+    end
+
+    model.Parent = parent
+    return model
+end
+
+------------------------------------------------------------
+-- GROUND ZONE: Urban ground patch (concrete/brick/grass)
+------------------------------------------------------------
+local function createGroundZone(parent: Instance, position: Vector3, sizeX: number, sizeZ: number, material: Enum.Material, color: Color3)
+    local zone = makePart(parent, "GroundZone", Vector3.new(sizeX, 0.12, sizeZ), position + Vector3.new(0, 0.01, 0), color, material)
+    zone.CanCollide = true
+    return zone
+end
+
+------------------------------------------------------------
 -- Main city build
 ------------------------------------------------------------
 
@@ -1266,8 +1414,12 @@ function MapBuilder:Init()
 end
 
 function MapBuilder:_buildCity()
-    -- City ground
-    local ground = makePart(Workspace, "CityGround", Vector3.new(800, 1, 800), Vector3.new(0, -0.5, 0), C.grassGreen, Enum.Material.Grass)
+    -- =============================================
+    -- GROUND LAYERS
+    -- =============================================
+
+    -- City ground (warm sand base — desert city feel)
+    local ground = makePart(Workspace, "CityGround", Vector3.new(700, 1, 700), Vector3.new(0, -0.5, 0), C.sand, Enum.Material.Sand)
     ground.Name = "CityGround"
 
     -- Folders
@@ -1283,168 +1435,296 @@ function MapBuilder:_buildCity()
     decorFolder.Name = "Decorations"
     decorFolder.Parent = Workspace
 
+    local groundFolder = Instance.new("Folder")
+    groundFolder.Name = "GroundZones"
+    groundFolder.Parent = Workspace
+
+    -- Urban concrete zones (under building districts)
+    -- Commercial district (top-left)
+    createGroundZone(groundFolder, Vector3.new(-130, 0, -130), 120, 120, Enum.Material.Concrete, C.sidewalk)
+    -- Government district (top-center)
+    createGroundZone(groundFolder, Vector3.new(0, 0, -130), 100, 120, Enum.Material.Concrete, Color3.fromRGB(170, 165, 158))
+    -- Residential area (top-right)
+    createGroundZone(groundFolder, Vector3.new(130, 0, -130), 120, 120, Enum.Material.Brick, Color3.fromRGB(185, 175, 160))
+    -- City center (center)
+    createGroundZone(groundFolder, Vector3.new(0, 0, 0), 100, 100, Enum.Material.Cobblestone, Color3.fromRGB(175, 168, 155))
+    -- Entertainment (mid-left)
+    createGroundZone(groundFolder, Vector3.new(-130, 0, 0), 120, 100, Enum.Material.Concrete, Color3.fromRGB(165, 160, 152))
+    -- Business (mid-right)
+    createGroundZone(groundFolder, Vector3.new(130, 0, 0), 120, 100, Enum.Material.Concrete, C.sidewalk)
+    -- Education & parks (bottom-center) — grass
+    createGroundZone(groundFolder, Vector3.new(0, 0, 130), 100, 120, Enum.Material.Grass, Color3.fromRGB(80, 140, 50))
+    -- Industrial (bottom-left)
+    createGroundZone(groundFolder, Vector3.new(-130, 0, 130), 120, 120, Enum.Material.Concrete, C.concrete)
+    -- Beach (bottom-right)
+    createGroundZone(groundFolder, Vector3.new(130, 0, 130), 120, 120, Enum.Material.Sand, Color3.fromRGB(210, 195, 155))
+
     -- =============================================
-    -- STREETS — Grid-based road network (Blender designed)
+    -- STREETS — Professional grid layout
     -- =============================================
 
-    -- Main horizontal roads
-    createRoad(streetsFolder, Vector3.new(-350, 0, 0), Vector3.new(350, 0, 0), 14)
-    createRoad(streetsFolder, Vector3.new(-350, 0, 120), Vector3.new(350, 0, 120), 12)
-    createRoad(streetsFolder, Vector3.new(-350, 0, -120), Vector3.new(350, 0, -120), 12)
+    -- Main boulevards (wider, 16 studs)
+    createRoad(streetsFolder, Vector3.new(-320, 0, 0), Vector3.new(320, 0, 0), 16)
+    createRoad(streetsFolder, Vector3.new(0, 0, -320), Vector3.new(0, 0, 320), 16)
 
-    -- Main vertical roads
-    createRoad(streetsFolder, Vector3.new(0, 0, -350), Vector3.new(0, 0, 350), 14)
-    createRoad(streetsFolder, Vector3.new(120, 0, -350), Vector3.new(120, 0, 350), 12)
-    createRoad(streetsFolder, Vector3.new(-120, 0, -350), Vector3.new(-120, 0, 350), 12)
+    -- Secondary roads (12 studs)
+    createRoad(streetsFolder, Vector3.new(-320, 0, -130), Vector3.new(320, 0, -130), 12)
+    createRoad(streetsFolder, Vector3.new(-320, 0, 130), Vector3.new(320, 0, 130), 12)
+    createRoad(streetsFolder, Vector3.new(-130, 0, -320), Vector3.new(-130, 0, 320), 12)
+    createRoad(streetsFolder, Vector3.new(130, 0, -320), Vector3.new(130, 0, 320), 12)
 
-    -- Intersections
-    for _, ix in ipairs({-120, 0, 120}) do
-        for _, iz in ipairs({-120, 0, 120}) do
-            createIntersection(streetsFolder, Vector3.new(ix, 0, iz), 20)
-        end
+    -- Intersections (where roads cross)
+    local interPts = {
+        {0, 0}, {-130, 0}, {130, 0}, {0, -130}, {0, 130},
+        {-130, -130}, {130, -130}, {-130, 130}, {130, 130},
+    }
+    for _, ip in ipairs(interPts) do
+        createIntersection(streetsFolder, Vector3.new(ip[1], 0, ip[2]), 22)
     end
 
-    -- Traffic lights at major intersections
-    local tlPositions = {
-        {12, 0, 12}, {-12, 0, -12}, {12, 0, -12}, {-12, 0, 12},
-        {132, 0, 12}, {-132, 0, 12}, {132, 0, -12}, {-132, 0, -12},
-        {12, 0, 132}, {-12, 0, 132}, {12, 0, -132}, {-12, 0, -132},
+    -- Central roundabout (replaces the main intersection)
+    createRoundabout(streetsFolder, Vector3.new(0, 0, 0), 16)
+
+    -- Traffic lights at all intersections except center (roundabout)
+    local tlCorners = {
+        -- NW intersection
+        {-142, 0, -12}, {-118, 0, 12},
+        -- NE intersection
+        {118, 0, -12}, {142, 0, 12},
+        -- SW intersection
+        {-142, 0, 118}, {-118, 0, 142},
+        -- SE intersection
+        {118, 0, 118}, {142, 0, 142},
+        -- N center
+        {-12, 0, -142}, {12, 0, -118},
+        -- S center
+        {-12, 0, 118}, {12, 0, 142},
+        -- W center
+        {-142, 0, -12}, {-118, 0, 12},
+        -- E center
+        {118, 0, -12}, {142, 0, 12},
     }
-    for _, tp in ipairs(tlPositions) do
+    for _, tp in ipairs(tlCorners) do
         createTrafficLight(decorFolder, Vector3.new(tp[1], tp[2], tp[3]))
     end
 
-    -- Street lamps along roads
-    for x = -300, 300, 40 do
-        createStreetLamp(decorFolder, Vector3.new(x, 0, 10))
-        createStreetLamp(decorFolder, Vector3.new(x, 0, -10))
+    -- =============================================
+    -- STREET LAMPS — Along all roads, evenly spaced
+    -- =============================================
+
+    -- Along main horizontal boulevard
+    for x = -280, 280, 30 do
+        if math.abs(x) > 20 then
+            createStreetLamp(decorFolder, Vector3.new(x, 0, 12))
+            createStreetLamp(decorFolder, Vector3.new(x, 0, -12))
+        end
     end
-    for z = -300, 300, 40 do
-        if math.abs(z) > 15 then
-            createStreetLamp(decorFolder, Vector3.new(10, 0, z))
+    -- Along main vertical boulevard
+    for z = -280, 280, 30 do
+        if math.abs(z) > 20 then
+            createStreetLamp(decorFolder, Vector3.new(12, 0, z))
+            createStreetLamp(decorFolder, Vector3.new(-12, 0, z))
+        end
+    end
+    -- Along secondary horizontal roads
+    for _, rz in ipairs({-130, 130}) do
+        for x = -280, 280, 40 do
+            createStreetLamp(decorFolder, Vector3.new(x, 0, rz + 10))
+        end
+    end
+    -- Along secondary vertical roads
+    for _, rx in ipairs({-130, 130}) do
+        for z = -280, 280, 40 do
+            createStreetLamp(decorFolder, Vector3.new(rx + 10, 0, z))
         end
     end
 
     -- =============================================
-    -- BUILDINGS (all Blender 3D designed)
+    -- BUILDINGS (organized by district)
     -- =============================================
 
-    -- Hospital
-    buildHospital(buildingsFolder, Vector3.new(-60, 0, -60))
+    -- ---- COMMERCIAL DISTRICT (NW quadrant) ----
+    buildMall(buildingsFolder, Vector3.new(-170, 0, -190))
+    buildRestaurant(buildingsFolder, Vector3.new(-100, 0, -190))
+    buildHotel(buildingsFolder, Vector3.new(-170, 0, -100))
+    buildDealership(buildingsFolder, Vector3.new(-100, 0, -90))
 
-    -- Bank
-    buildBank(buildingsFolder, Vector3.new(60, 0, -60))
+    -- ---- GOVERNMENT DISTRICT (N center) ----
+    buildPoliceStation(buildingsFolder, Vector3.new(-30, 0, -190))
+    buildFireStation(buildingsFolder, Vector3.new(30, 0, -190))
+    buildHospital(buildingsFolder, Vector3.new(-10, 0, -100))
 
-    -- Mosque
-    buildMosque(buildingsFolder, Vector3.new(0, 0, -200))
-
-    -- Mall
-    buildMall(buildingsFolder, Vector3.new(-60, 0, 60))
-
-    -- Police Station
-    buildPoliceStation(buildingsFolder, Vector3.new(60, 0, 60))
-
-    -- Fire Station
-    buildFireStation(buildingsFolder, Vector3.new(-60, 0, -180))
-
-    -- Airport
-    buildAirport(buildingsFolder, Vector3.new(200, 0, -180))
-
-    -- Car Dealership
-    buildDealership(buildingsFolder, Vector3.new(200, 0, 60))
-
-    -- Restaurant (player starting job)
-    buildRestaurant(buildingsFolder, Vector3.new(-200, 0, 60))
-
-    -- Gas Station
-    buildGasStation(buildingsFolder, Vector3.new(200, 0, 180))
-
-    -- Hotel
-    buildHotel(buildingsFolder, Vector3.new(-200, 0, -60))
-
-    -- School
-    buildSchool(buildingsFolder, Vector3.new(0, 0, 200))
-
-    -- Villas / Houses (5 residential)
+    -- ---- RESIDENTIAL AREA (NE quadrant) ----
     local villaPositions = {
-        Vector3.new(-200, 0, -180),
-        Vector3.new(200, 0, -60),
-        Vector3.new(-60, 0, 180),
-        Vector3.new(60, 0, 180),
-        Vector3.new(-200, 0, 180),
+        Vector3.new(90, 0, -190),
+        Vector3.new(140, 0, -190),
+        Vector3.new(190, 0, -170),
+        Vector3.new(90, 0, -120),
+        Vector3.new(140, 0, -120),
     }
     for i, vp in ipairs(villaPositions) do
         buildVilla(buildingsFolder, vp, i)
     end
 
+    -- ---- CITY CENTER (center) ----
+    buildMosque(buildingsFolder, Vector3.new(-35, 0, 15))
+    buildBank(buildingsFolder, Vector3.new(30, 0, 15))
+
+    -- ---- BUSINESS DISTRICT (E center) ----
+    buildGasStation(buildingsFolder, Vector3.new(90, 0, -30))
+
+    -- ---- SOUTH ZONE ----
+    -- Industrial (SW)
+    buildAirport(buildingsFolder, Vector3.new(-180, 0, 60))
+    -- Education & parks (S center)
+    buildSchool(buildingsFolder, Vector3.new(-20, 0, 60))
+    -- Beach & leisure (SE)
+    buildBeach(decorFolder, Vector3.new(130, 0, 180))
+
     -- =============================================
-    -- DECORATIONS (Blender 3D designed)
+    -- PLAZAS & SEATING AREAS
     -- =============================================
 
-    -- Palm trees (scattered, avoiding roads)
+    -- Commercial plaza (near mall)
+    createPlaza(decorFolder, Vector3.new(-135, 0, -155), 18)
+    -- Government plaza (in front of hospital)
+    createPlaza(decorFolder, Vector3.new(0, 0, -75), 16)
+    -- City center plaza (near mosque)
+    createPlaza(decorFolder, Vector3.new(0, 0, 50), 22)
+    -- Residential mini-plaza
+    createPlaza(decorFolder, Vector3.new(120, 0, -155), 14)
+
+    -- =============================================
+    -- PARKING LOTS
+    -- =============================================
+
+    -- Hospital parking
+    createParkingLot(decorFolder, Vector3.new(30, 0, -80), 5, true)
+    -- Mall parking
+    createParkingLot(decorFolder, Vector3.new(-135, 0, -215), 6, true)
+    -- Police parking
+    createParkingLot(decorFolder, Vector3.new(-30, 0, -215), 3, true)
+    -- Airport parking
+    createParkingLot(decorFolder, Vector3.new(-180, 0, 100), 5, true)
+    -- Dealership parking
+    createParkingLot(decorFolder, Vector3.new(-65, 0, -80), 4, true)
+
+    -- =============================================
+    -- CENTRAL PARK (larger, south-center)
+    -- =============================================
+
+    buildPark(decorFolder, Vector3.new(30, 0, 80))
+
+    -- =============================================
+    -- FLOWER ROWS along major sidewalks
+    -- =============================================
+
+    -- Main boulevard flower accents
+    createFlowerRow(decorFolder, Vector3.new(-60, 0, 15), 30, "x")
+    createFlowerRow(decorFolder, Vector3.new(60, 0, 15), 30, "x")
+    createFlowerRow(decorFolder, Vector3.new(15, 0, -60), 30, "z")
+    createFlowerRow(decorFolder, Vector3.new(15, 0, 60), 30, "z")
+    -- Near mosque
+    createFlowerRow(decorFolder, Vector3.new(-35, 0, 50), 20, "x")
+    -- Near hospital
+    createFlowerRow(decorFolder, Vector3.new(-10, 0, -80), 20, "x")
+
+    -- =============================================
+    -- PALM TREES (denser, avoid roads + buildings)
+    -- =============================================
+
     local rng = Random.new(42)
-    for x = -300, 300, 50 do
-        for z = -300, 300, 50 do
-            local tx = x + rng:NextInteger(-15, 15)
-            local tz = z + rng:NextInteger(-15, 15)
-            local onRoad = (math.abs(tx) < 12 or math.abs(tx - 120) < 12 or math.abs(tx + 120) < 12)
-                or (math.abs(tz) < 12 or math.abs(tz - 120) < 12 or math.abs(tz + 120) < 12)
+    for x = -280, 280, 35 do
+        for z = -280, 280, 35 do
+            local tx = x + rng:NextInteger(-10, 10)
+            local tz = z + rng:NextInteger(-10, 10)
+            -- Skip if on road
+            local onRoad = false
+            for _, ro in ipairs({0, -130, 130}) do
+                if math.abs(tx - ro) < 14 or math.abs(tz - ro) < 14 then
+                    onRoad = true
+                    break
+                end
+            end
             if not onRoad then
                 createPalmTree(decorFolder, Vector3.new(tx, 0, tz))
             end
         end
     end
 
-    -- Benches along main roads
-    local benchPositions = {
-        {20, 0, 15}, {-20, 0, 15}, {40, 0, 15}, {-40, 0, 15},
-        {140, 0, 15}, {-140, 0, 15}, {20, 0, 135}, {-20, 0, 135},
-        {140, 0, 135}, {-140, 0, 135},
+    -- =============================================
+    -- BENCHES along all roads
+    -- =============================================
+
+    local benchSpots = {
+        -- Main boulevard benches
+        {30, 0, 14}, {-30, 0, 14}, {60, 0, 14}, {-60, 0, 14},
+        {90, 0, 14}, {-90, 0, 14},
+        {14, 0, 30}, {14, 0, -30}, {14, 0, 60}, {14, 0, -60},
+        {14, 0, 90}, {14, 0, -90},
+        -- Secondary road benches
+        {30, 0, 143}, {-30, 0, 143}, {60, 0, 143}, {-60, 0, 143},
+        {30, 0, -143}, {-30, 0, -143}, {60, 0, -143},
+        {143, 0, 30}, {143, 0, -30}, {143, 0, 60},
+        {-143, 0, 30}, {-143, 0, -30}, {-143, 0, 60},
     }
-    for _, bp in ipairs(benchPositions) do
+    for _, bp in ipairs(benchSpots) do
         createBench(decorFolder, Vector3.new(bp[1], bp[2], bp[3]))
     end
 
-    -- Trash cans near benches
-    for _, bp in ipairs(benchPositions) do
+    -- Trash cans near every bench
+    for _, bp in ipairs(benchSpots) do
         createTrashCan(decorFolder, Vector3.new(bp[1] + 3, bp[2], bp[3]))
     end
 
-    -- Fire hydrants along streets
-    for x = -280, 280, 80 do
-        createHydrant(decorFolder, Vector3.new(x, 0, 13))
+    -- =============================================
+    -- FIRE HYDRANTS along streets
+    -- =============================================
+
+    for x = -260, 260, 60 do
+        createHydrant(decorFolder, Vector3.new(x, 0, 14))
+    end
+    for z = -260, 260, 60 do
+        if math.abs(z) > 20 then
+            createHydrant(decorFolder, Vector3.new(14, 0, z))
+        end
     end
 
-    -- Bus stops
-    createBusStop(decorFolder, Vector3.new(30, 0, 12))
-    createBusStop(decorFolder, Vector3.new(-30, 0, -12))
-    createBusStop(decorFolder, Vector3.new(130, 0, 12))
-    createBusStop(decorFolder, Vector3.new(-130, 0, -12))
+    -- =============================================
+    -- BUS STOPS
+    -- =============================================
 
-    -- Central park
-    buildPark(decorFolder, Vector3.new(0, 0, 50))
+    createBusStop(decorFolder, Vector3.new(40, 0, 13))
+    createBusStop(decorFolder, Vector3.new(-40, 0, -13))
+    createBusStop(decorFolder, Vector3.new(140, 0, 13))
+    createBusStop(decorFolder, Vector3.new(-140, 0, -13))
+    createBusStop(decorFolder, Vector3.new(13, 0, 140))
+    createBusStop(decorFolder, Vector3.new(-13, 0, -140))
 
-    -- Beach
-    buildBeach(decorFolder, Vector3.new(0, 0, 320))
+    -- =============================================
+    -- NPC TRAFFIC CARS (parked in realistic spots)
+    -- =============================================
 
-    -- Central fountain (at main intersection)
-    local fountainSpout = makePart(decorFolder, "CentralFountainSpout", Vector3.new(2, 0.5, 2), Vector3.new(0, 6.5, 0), C.water, Enum.Material.Neon, 0.3)
-    addLight(fountainSpout, Color3.fromRGB(100, 180, 255), 25, 1)
-    makeCylinder(decorFolder, "CentralFountainBase", Vector3.new(2, 10, 10), Vector3.new(0, 1, 0), C.marble, Enum.Material.Marble, Vector3.new(0, 0, 90))
-    makeCylinder(decorFolder, "CentralFountainPool", Vector3.new(2, 8, 8), Vector3.new(0, 1.5, 0), C.water, Enum.Material.Glass, Vector3.new(0, 0, 90))
-    makeCylinder(decorFolder, "CentralFountainPillar", Vector3.new(5.5, 0.5, 0.5), Vector3.new(0, 3.75, 0), C.marble, Enum.Material.Marble, Vector3.new(0, 0, 90))
-
-    -- NPC traffic cars (parked around the city)
-    local npcCarColors = {C.brightRed, C.blue, C.white, C.metalGrey, C.gold, C.black}
+    local npcCarColors = {C.brightRed, C.blue, C.white, C.metalGrey, C.gold, C.black, C.darkGreen, C.creamWall}
     local npcCarPositions = {
-        {40, 0, 25}, {-50, 0, 25}, {160, 0, 25}, {-160, 0, 25},
-        {25, 0, 80}, {-25, 0, -80}, {160, 0, -80},
+        -- Near mall
+        {-145, 0, -218}, {-135, 0, -218}, {-125, 0, -218},
+        -- Near police
+        {-20, 0, -218},
+        -- Near hospital
+        {35, 0, -83}, {40, 0, -83},
+        -- Near airport
+        {-175, 0, 103}, {-170, 0, 103},
+        -- Main boulevard parked
+        {50, 0, 18}, {-70, 0, 18},
+        -- Residential area
+        {100, 0, -215}, {150, 0, -215},
     }
     for i, ncp in ipairs(npcCarPositions) do
         createNPCCar(decorFolder, Vector3.new(ncp[1], ncp[2], ncp[3]), npcCarColors[(i % #npcCarColors) + 1])
     end
 
-    print("[ArabCity] MapBuilder: City built successfully (Blender 3D Edition) - " .. tostring(#buildingsFolder:GetChildren()) .. " buildings")
+    print("[ArabCity] MapBuilder: City built (Professional Layout) - " .. tostring(#buildingsFolder:GetChildren()) .. " buildings, " .. tostring(#decorFolder:GetChildren()) .. " decorations")
 end
 
 return MapBuilder

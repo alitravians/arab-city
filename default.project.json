@@ -11,11 +11,11 @@
       "SpawnLocation": {
         "$className": "SpawnLocation",
         "$properties": {
-          "Position": [0, 0.5, 0],
-          "Size": [12, 1, 12],
+          "Position": [0, 0.5, 45],
+          "Size": [14, 1, 14],
           "Anchored": true,
-          "Material": "SmoothPlastic",
-          "Color": [0.2, 0.2, 0.2],
+          "Material": "Cobblestone",
+          "Color": [0.55, 0.5, 0.45],
           "Transparency": 0,
           "CanCollide": true
         }
@@ -27,8 +27,8 @@
           "Size": [2048, 1, 2048],
           "Position": [0, -0.5, 0],
           "Anchored": true,
-          "Material": "Grass",
-          "Color": [0.294, 0.588, 0.294],
+          "Material": "Sand",
+          "Color": [0.76, 0.7, 0.58],
           "Locked": true
         }
       }
@@ -37,26 +37,27 @@
     "Lighting": {
       "$className": "Lighting",
       "$properties": {
-        "ClockTime": 14,
+        "ClockTime": 14.5,
         "GeographicLatitude": 21.5,
         "GlobalShadows": true,
-        "Brightness": 2,
+        "Brightness": 2.2,
         "EnvironmentDiffuseScale": 1,
-        "EnvironmentSpecularScale": 1,
-        "OutdoorAmbient": [0.7, 0.7, 0.7],
-        "Ambient": [0.4, 0.4, 0.45],
-        "FogEnd": 10000,
-        "FogColor": [0.75, 0.82, 0.95]
+        "EnvironmentSpecularScale": 0.8,
+        "OutdoorAmbient": [0.75, 0.72, 0.65],
+        "Ambient": [0.45, 0.42, 0.4],
+        "FogEnd": 1200,
+        "FogStart": 200,
+        "FogColor": [0.82, 0.78, 0.7]
       },
       "Atmosphere": {
         "$className": "Atmosphere",
         "$properties": {
-          "Density": 0.3,
-          "Offset": 0.25,
-          "Color": [0.85, 0.75, 0.5],
-          "Decay": [0.36, 0.39, 0.47],
-          "Glare": 0,
-          "Haze": 1
+          "Density": 0.35,
+          "Offset": 0.2,
+          "Color": [0.9, 0.82, 0.65],
+          "Decay": [0.42, 0.44, 0.5],
+          "Glare": 0.05,
+          "Haze": 1.5
         }
       },
       "Sky": {
@@ -70,25 +71,25 @@
       "BloomEffect": {
         "$className": "BloomEffect",
         "$properties": {
-          "Intensity": 0.3,
-          "Size": 24,
-          "Threshold": 0.9
+          "Intensity": 0.25,
+          "Size": 30,
+          "Threshold": 0.85
         }
       },
       "ColorCorrectionEffect": {
         "$className": "ColorCorrectionEffect",
         "$properties": {
-          "Brightness": 0.02,
-          "Contrast": 0.08,
-          "Saturation": 0.2,
-          "TintColor": [1, 0.97, 0.92]
+          "Brightness": 0.03,
+          "Contrast": 0.1,
+          "Saturation": 0.15,
+          "TintColor": [1, 0.96, 0.9]
         }
       },
       "SunRaysEffect": {
         "$className": "SunRaysEffect",
         "$properties": {
-          "Intensity": 0.1,
-          "Spread": 0.6
+          "Intensity": 0.08,
+          "Spread": 0.5
         }
       }
     },
