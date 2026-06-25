@@ -15,7 +15,7 @@ function DailyChallengeService:Init(dataService)
     Constants = Shared.Constants
     Remotes = Shared.Remotes
 
-    Remotes:OnServerEvent("ClaimChallenge", function(player, challengeId)
+    Remotes:OnServerEvent("ClaimDailyChallenge", function(player, challengeId)
         self:_claim(player, challengeId)
     end)
 end

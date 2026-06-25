@@ -20,10 +20,12 @@ function TradeService:Init(dataService)
         self:_initiate(player, targetName)
     end)
 
-    Remotes:OnServerEvent("TradeAction", function(player, action, data)
+    Remotes:OnServerEvent("TradeAction", function(player, data)
+        if type(data) ~= "table" then return end
+        local action = data.action
         if action == "accept" then
             self:_accept(player, data)
-        elseif action == "reject" then
+        elseif action == "reject" or action == "decline" then
             self:_reject(player, data)
         elseif action == "offer" then
             self:_setOffer(player, data)

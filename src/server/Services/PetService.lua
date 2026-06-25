@@ -9,23 +9,22 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local PetService = {}
 
-local Shared, Constants, Remotes, DataService
+local Shared, Constants, Remotes, DataService, EconomyService
 local _activePets = {}
 
-function PetService:Init(dataService)
+function PetService:Init(dataService, economyService)
     DataService = dataService
+    EconomyService = economyService
     Shared = require(ReplicatedStorage:WaitForChild("ArabCity_Shared"))
     Constants = Shared.Constants
     Remotes = Shared.Remotes
 
-    Remotes:OnServerEvent("PetAction", function(player, action, petId)
-        if action == "purchase" then
-            self:_purchase(player, petId)
-        elseif action == "equip" then
-            self:_equip(player, petId)
-        elseif action == "unequip" then
-            self:_unequip(player)
-        end
+    Remotes:OnServerEvent("PurchasePet", function(player, petId)
+        self:_purchase(player, petId)
+    end)
+
+    Remotes:OnServerEvent("EquipPet", function(player, petId)
+        self:_equip(player, petId)
     end)
 
     Players.PlayerRemoving:Connect(function(player)
@@ -58,15 +57,14 @@ function PetService:_purchase(player, petId)
         end
     end
 
-    if data.cash < config.price then
+    if not EconomyService:RemoveCash(player, config.price) then
         Remotes:FireClient("ShowNotification", player, { title = "خطأ", message = "رصيدك غير كافٍ", duration = 3 })
         return
     end
 
-    data.cash = data.cash - config.price
     table.insert(data.pets, petId)
 
-    Remotes:FireClient("UpdateCash", player, data.cash)
+    Remotes:FireClient("UpdateCash", player, DataService:Get(player).cash)
     Remotes:FireClient("ShowNotification", player, {
         title = "حيوان جديد!",
         message = "اشتريت " .. config.name,
